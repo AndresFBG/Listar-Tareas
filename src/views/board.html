@@ -1,16 +1,91 @@
-<div class="container">
-  <article class="card">
-    <header class="toolbar">
-      <a class="link" href="#/home">← Volver</a>
-    </header>
-    <h1>Mis tareas</h1>
-    <form id="todoForm" class="form" autocomplete="off">
-      <div class="row">
-        <label for="newTodo">Nueva tarea</label>
-        <input id="newTodo" name="title" type="text" placeholder="Comprar pan…" required minlength="2" />
-      </div>
-      <button class="btn" type="submit">Agregar</button>
-    </form>
-    <ul id="todoList"></ul>
-  </article>
-</div>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Tareas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header de la página -->
+        <div class="header">
+            <h1>MIS TAREAS</h1>
+            <button class="new-task-btn" id="newTaskBtn">+ Nueva</button>
+
+            <!-- Botón para cerrar sesión o regresar al login -->
+            <button class="logout-btn" id="logoutBtn">Cerrar sesión</button>
+
+        </div>
+
+        <div class="tasks-grid">
+            <div class="task-column">
+                <div class="column-header">POR HACER</div>
+                <div id="todo-tasks">
+                    <div class="empty-state">No hay tareas pendientes</div>
+                </div>
+            </div>
+
+            <div class="task-column">
+                <div class="column-header">HACIENDO</div>
+                <div id="doing-tasks">
+                    <div class="empty-state">No hay tareas en progreso</div>
+                </div>
+            </div>
+
+            <div class="task-column">
+                <div class="column-header">HECHO</div>
+                <div id="done-tasks">
+                    <div class="empty-state">No hay tareas completadas</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para crear tareas -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Crear Tareas</div>
+            <form id="taskForm">
+                <div class="form-group">
+                    <label for="taskTitle">Título</label>
+                    <input type="text" id="taskTitle" name="title" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="taskDetails">Detalles</label>
+                    <textarea id="taskDetails" name="details" placeholder="Descripción de la tarea..."></textarea>
+                </div>
+
+                <div class="datetime-group">
+                    <div class="form-group">
+                        <label for="taskDate">Fecha dd/mm/aaaa</label>
+                        <input type="date" id="taskDate" name="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskTime">Hora hh:mm</label>
+                        <input type="time" id="taskTime" name="time" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="taskStatus">Estado</label>
+                    <select id="taskStatus" name="status" required>
+                        <option value="">Seleccionar estado</option>
+                        <option value="todo">Por hacer</option>
+                        <option value="doing">Haciendo</option>
+                        <option value="done">Hecho</option>
+                    </select>
+                </div>
+
+                <div class="modal-buttons">
+                    <button type="submit" class="btn-save" id="saveBtn">Guardar</button>
+                    <button type="button" class="btn-cancel" id="cancelBtn">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
