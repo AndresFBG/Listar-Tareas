@@ -10,21 +10,26 @@
     <div class="container">
         <div class="form-container">
             <h1>Sign up</h1>
-            <p>Lorem Ipsum is simply</p>
+            <p>Por favor, completa los campos para registrarte.</p>
             
-            <form>
-                <input type="text" placeholder="Nombres" required>
-                <input type="text" placeholder="Apellidos" required>
-                <input type="number" placeholder="Edad" required>
-                <input type="email" placeholder="Correo Electrónico" required>
-                <input type="password" placeholder="Contraseña" required>
-                <input type="password" placeholder="Confirmar Contraseña" required>
+            <!-- Formulario de registro con los IDs correspondientes -->
+            <form id="registerForm">
+                <input type="text" id="username" placeholder="Nombres" required>
+                <input type="text" id="lastname" placeholder="Apellidos" required>
+                <input type="number" id="age" placeholder="Edad" required>
+                <input type="email" id="email" placeholder="Correo Electrónico" required>
+                <input type="password" id="password" placeholder="Contraseña" required>
+                <input type="password" id="confirmPassword" placeholder="Confirmar Contraseña" required>
+                
                 
                 <button type="submit">Registrarse</button>
+                <p id="registerMsg"></p>
             </form>
             
-            <p>¿Ya tienes una cuenta? <a href="home.html">Login</a></p>
+            <p>¿Ya tienes una cuenta? <a href="#/home">Login</a></p>
         </div>
     </div>
+
+    <script src="app.js"></script>
 </body>
 </html>

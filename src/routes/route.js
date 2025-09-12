@@ -23,6 +23,7 @@ async function loadView(name) {
 
   if (name === 'home') initHome();
   if (name === 'board') initBoard();
+  if (name === 'register') initRegister()
 }
 
 /**
@@ -40,7 +41,7 @@ export function initRouter() {
  */
 function handleRoute() {
   const path = (location.hash.startsWith('#/') ? location.hash.slice(2) : '') || 'home';
-  const known = ['home', 'board'];
+  const known = ['home', 'board', 'register'];
   const route = known.includes(path) ? path : 'home';
 
   loadView(route).catch(err => {
@@ -125,5 +126,63 @@ function initBoard() {
     if (!li) return;
     if (e.target.matches('.remove')) li.remove();
     if (e.target.matches('.check')) li.classList.toggle('completed', e.target.checked);
+  });
+}
+
+function initRegister() {
+  // Obtén los elementos del formulario y los campos
+  const form = document.getElementById('registerForm');
+  const userInput = document.getElementById('username');
+  const lastnameInput = document.getElementById('lastname');
+  const ageInput = document.getElementById('age');
+  const emailInput = document.getElementById('email');
+  const passInput = document.getElementById('password');
+  const confirmPassInput = document.getElementById('confirmPassword');
+  const msg = document.getElementById('registerMsg');
+
+  // Verifica si el formulario existe
+  if (!form) return;
+
+  // Maneja el evento submit del formulario
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();  // Evita el comportamiento por defecto del formulario (que recargue la página)
+    msg.textContent = ''; // Limpia cualquier mensaje previo
+
+    // Obtén los valores de los campos
+    const username = userInput?.value.trim();
+    const lastname = lastnameInput?.value.trim();
+    const age = ageInput?.value.trim();
+    const email = emailInput?.value.trim();
+    const password = passInput?.value.trim();
+    const confirmPassword = confirmPassInput?.value.trim();
+
+    // Validación de campos
+    if (!username || !lastname || !age || !email || !password || !confirmPassword) {
+      msg.textContent = 'Por favor completa todos los campos.';
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      msg.textContent = 'Las contraseñas no coinciden.';
+      return;
+    }
+
+    // Deshabilita el botón de envío para evitar múltiples envíos
+    form.querySelector('button[type="submit"]').disabled = true;
+
+    try {
+      // Llama a la función de registro con los datos del formulario
+      const data = await registerUser({ username, lastname, age, email, password });
+      msg.textContent = 'Registro exitoso';  // Muestra un mensaje de éxito
+
+      // Redirige a la vista "board" después de un corto retraso
+      setTimeout(() => (location.hash = '#/board'), 400);
+    } catch (err) {
+      // Si ocurre un error en el registro, muestra el mensaje
+      msg.textContent = `No se pudo registrar: ${err.message}`;
+    } finally {
+      // Vuelve a habilitar el botón de envío
+      form.querySelector('button[type="submit"]').disabled = false;
+    }
   });
 }
