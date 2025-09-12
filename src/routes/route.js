@@ -24,6 +24,7 @@ async function loadView(name) {
   if (name === 'home') initHome();
   if (name === 'board') initBoard();
   if (name === 'register') initRegister()
+  if (name === 'forgot') initForgot();
 }
 
 /**
@@ -41,7 +42,7 @@ export function initRouter() {
  */
 function handleRoute() {
   const path = (location.hash.startsWith('#/') ? location.hash.slice(2) : '') || 'home';
-  const known = ['home', 'board', 'register'];
+  const known = ['home', 'board', 'register', 'forgot'];
   const route = known.includes(path) ? path : 'home';
 
   loadView(route).catch(err => {
@@ -180,6 +181,62 @@ function initRegister() {
     } catch (err) {
       // Si ocurre un error en el registro, muestra el mensaje
       msg.textContent = `No se pudo registrar: ${err.message}`;
+    } finally {
+      // Vuelve a habilitar el botón de envío
+      form.querySelector('button[type="submit"]').disabled = false;
+    }
+  });
+}
+
+function initForgot() {
+  // Obtén los elementos del formulario y los campos
+  const form = document.getElementById('recoverForm');
+  const emailInput = document.getElementById('email');
+  const msg = document.getElementById('message');
+
+  // Verifica si el formulario existe
+  if (!form) return;
+
+  // Maneja el evento submit del formulario
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();  // Evita el comportamiento por defecto del formulario (recargar la página)
+    msg.textContent = ''; // Limpia cualquier mensaje previo
+
+    // Obtén el valor del campo de correo electrónico
+    const email = emailInput?.value.trim();
+
+    // Validación de correo
+    if (!email) {
+      msg.textContent = 'Por favor ingresa tu correo electrónico.';
+      return;
+    }
+
+    // Deshabilita el botón de envío para evitar múltiples envíos
+    form.querySelector('button[type="submit"]').disabled = true;
+
+    try {
+      // Simula el envío de enlace de recuperación
+      // En este caso no estamos interactuando con un backend, solo simulamos el éxito
+      const users = getUsers(); // Obtener usuarios registrados
+      const user = users.find((u) => u.email === email);
+
+      if (!user) {
+        msg.textContent = 'El correo no está registrado.';
+        msg.style.color = 'red';
+        return;
+      }
+
+      // Simulamos el envío de un enlace de recuperación
+      msg.textContent = 'Se ha enviado un enlace para restablecer tu contraseña.';
+      msg.style.color = 'green';
+
+      // Opcional: Redirigir al login después de un breve retraso
+      setTimeout(() => (location.hash = '#/login'), 2000);
+
+    } catch (err) {
+      // Si ocurre un error, muestra el mensaje
+      msg.textContent = `No se pudo recuperar la contraseña: ${err.message}`;
+      msg.style.color = 'red';
     } finally {
       // Vuelve a habilitar el botón de envío
       form.querySelector('button[type="submit"]').disabled = false;
