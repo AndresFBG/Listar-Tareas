@@ -154,28 +154,27 @@ async function loginUser({ email, password }) {
  * @returns {void}
  */
 function initBoard() {
-  const form = document.getElementById('todoForm');
-  const input = document.getElementById('newTodo');
-  const list = document.getElementById('todoList');
-
-  const newTaskBtn = document.getElementById('newTaskBtn');
-  const taskModal = document.getElementById('taskModal');
-  const cancelBtn = document.getElementById('cancelBtn');
-  const taskForm = document.getElementById('taskForm');
-
-  // Mostrar el modal para crear una nueva tarea
+  const form = document.getElementById('taskForm'); // Formulario de la tarea
+  const taskModal = document.getElementById('taskModal'); // Modal
+  const cancelBtn = document.getElementById('cancelBtn'); // Botón de cancelar
+  const newTaskBtn = document.getElementById('newTaskBtn'); // Botón de nueva tarea
+  const logoutBtn = document.getElementById('logoutBtn'); // Botón de cerrar sesión
+  
+  // Función para abrir el modal
   newTaskBtn.addEventListener('click', () => {
-    taskModal.style.display = 'flex';
+    taskModal.classList.add('show'); // Agregar la clase 'show' para hacer visible el modal
+    console.log('Modal abierto');
   });
 
-  // Cerrar el modal
+  // Función para cerrar el modal
   cancelBtn.addEventListener('click', () => {
-    taskModal.style.display = 'none';
+    taskModal.classList.remove('show'); // Eliminar la clase 'show' para ocultar el modal
+    console.log('Modal cerrado');
   });
 
-  // Al enviar el formulario, agregar la tarea
-  taskForm.addEventListener('submit', (e) => {
-    e.preventDefault();
+  // Función para agregar una tarea
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault(); // Prevenir el comportamiento por defecto del formulario
     const title = document.getElementById('taskTitle').value;
     const details = document.getElementById('taskDetails').value;
     const date = document.getElementById('taskDate').value;
@@ -188,18 +187,19 @@ function initBoard() {
       return;
     }
 
+    // Crear una nueva tarea
     const newTask = { title, details, date, time, status };
     console.log('Nueva tarea agregada:', newTask);
 
     // Añadir la tarea al DOM
     addTaskToDOM(newTask);
 
-    // Guardar las tareas en el localStorage
-    saveTaskToLocalStorage(newTask);
+    // Guardar la tarea en la base de datos
+    await saveTaskToDatabase(newTask);
 
     // Cerrar el modal y resetear el formulario
-    taskModal.style.display = 'none';
-    taskForm.reset();
+    taskModal.classList.remove('show');
+    form.reset();
   });
 
   // Función para agregar la tarea al DOM
@@ -211,32 +211,64 @@ function initBoard() {
       <div class="task-date">${task.date} ${task.time}</div>
       <div class="task-status">${task.status}</div>
     `;
-
-    list.appendChild(taskItem);
+    
+    // Añadir la tarea a la columna correspondiente según el estado
+    const taskList = document.getElementById(`${task.status}-tasks`);
+    if (taskList) {
+      taskList.appendChild(taskItem);
+    }
   }
 
-  // Función para guardar la tarea en el localStorage
-  function saveTaskToLocalStorage(task) {
-    const tasks = getTasksFromLocalStorage();
-    tasks.push(task);
-    localStorage.setItem('tasks', JSON.stringify(tasks));
+  // Función para guardar la tarea en la base de datos (simulación de API)
+  async function saveTaskToDatabase(task) {
+    try {
+      const response = await fetch('/api/tasks', { // Reemplaza esta URL con la ruta correcta a tu API
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(task),
+      });
+
+      if (!response.ok) {
+        throw new Error('No se pudo guardar la tarea en la base de datos');
+      }
+
+      const savedTask = await response.json();
+      console.log('Tarea guardada en la base de datos:', savedTask);
+    } catch (err) {
+      console.error(err);
+      alert('Hubo un error al guardar la tarea');
+    }
   }
 
-  // Función para obtener las tareas desde el localStorage
-  function getTasksFromLocalStorage() {
-    const tasks = localStorage.getItem('tasks');
-    return tasks ? JSON.parse(tasks) : [];
-  }
+  // Función para cargar las tareas desde la base de datos (simulación de carga de tareas)
+  async function loadTasksFromDatabase() {
+    try {
+      const response = await fetch('/api/tasks'); // Reemplaza esta URL con la ruta correcta a tu API
+      const tasks = await response.json();
 
-  // Cargar las tareas desde el localStorage al cargar la página
-  function loadTasksFromLocalStorage() {
-    const tasks = getTasksFromLocalStorage();
-    tasks.forEach(task => addTaskToDOM(task));
+      tasks.forEach(task => {
+        addTaskToDOM(task); // Añadir las tareas al DOM
+      });
+    } catch (err) {
+      console.error(err);
+      alert('Hubo un error al cargar las tareas');
+    }
   }
 
   // Cargar las tareas cuando se inicia la página
-  loadTasksFromLocalStorage();
+  loadTasksFromDatabase();
+
+  // Función de cerrar sesión
+  logoutBtn.addEventListener('click', () => {
+    // Limpiar el localStorage y redirigir al login
+    localStorage.clear();
+    location.hash = '#/home'; // Redirigir al login
+  });
 }
+
+
 
 /**
  * Initialize the "Register" view.
