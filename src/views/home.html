@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>Login</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -19,8 +19,10 @@
                 
                 <button type="submit">Iniciar sesión</button> 
             </form>
-            
-            <!-- Enlace que cambia el hash de la URL a #/register -->
+
+            <!-- Contenedor para mensajes de error o éxito -->
+            <div id="loginMsg"></div>
+
             <p>¿No tienes una cuenta? <a href="#/register">Registro</a></p>
         </div>
         <div class="image-container">
@@ -28,6 +30,6 @@
         </div>
     </div>
 
-   
+    <script src="script.js"></script>  <!-- Asegúrate de que este script esté cargado correctamente -->
 </body>
 </html>

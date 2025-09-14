@@ -27,5 +27,5 @@ export async function registerUser({ username, lastname, birthdate, email, passw
 }
 
 export async function loginUser({ email, password }) {
-  return http.post('/api/v1/login', { email, password });
+  return http.post('/api/v1/users/login', { email, password });
 }

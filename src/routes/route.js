@@ -70,39 +70,82 @@ function handleRoute() {
  * @returns {void}
  */
 function initHome() {
-  const form = document.getElementById('registerForm');
-  const userInput = document.getElementById('username');
+  const form = document.getElementById('loginForm'); // Cambiado a 'loginForm'
+  const emailInput = document.getElementById('email'); // Cambiado a 'email'
   const passInput = document.getElementById('password');
-  const msg = document.getElementById('registerMsg');
+  const msg = document.getElementById('loginMsg'); // Cambiado a 'loginMsg' (Asegúrate de tener este contenedor)
 
   if (!form) return;
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    msg.textContent = '';
+    msg.textContent = ''; // Limpiar mensajes previos
 
-    const username = userInput?.value.trim();
+    const email = emailInput?.value.trim();  // Obtener valores de email y contraseña
     const password = passInput?.value.trim();
 
-    if (!username || !password) {
-      msg.textContent = 'Por favor completa usuario y contraseña.';
+    if (!email || !password) {
+      msg.textContent = 'Por favor completa correo electrónico y contraseña.';
       return;
     }
 
-    form.querySelector('button[type="submit"]').disabled = true;
+    form.querySelector('button[type="submit"]').disabled = true; // Deshabilitar el botón durante el proceso
 
     try {
-      const data = await registerUser({ username, password });
-      msg.textContent = 'Registro exitoso';
+      // Validación del login
+      const data = await loginUser({ email, password }); // Llamar la función de login
 
-      setTimeout(() => (location.hash = '#/board'), 400);
+      msg.textContent = 'Login exitoso';
+
+      // Redirigir a otra página o cambiar el hash de la URL después de un login exitoso
+      setTimeout(() => (location.hash = '#/board'), 400); // Cambiar a la vista de tablero o la página deseada
+
     } catch (err) {
-      msg.textContent = `No se pudo registrar: ${err.message}`;
+      msg.textContent = `No se pudo iniciar sesión: ${err.message}`;
     } finally {
-      form.querySelector('button[type="submit"]').disabled = false;
+      form.querySelector('button[type="submit"]').disabled = false; // Habilitar el botón de nuevo
     }
   });
 }
+
+async function loginUser({ email, password }) {
+  // Define las credenciales predeterminadas
+  const defaultEmail = 'prueba@gmail.com';
+  const defaultPassword = '12345';
+
+  // Validación local: compara las credenciales ingresadas con las predeterminadas
+  if (email === defaultEmail && password === defaultPassword) {
+    // Simula una respuesta exitosa
+    return { message: 'Login exitoso', userId: '12345' };
+  } else {
+    // Simula un error de credenciales incorrectas
+    throw new Error('Credenciales incorrectas');
+  }
+}
+
+
+
+/** 
+ validar ruta 
+
+// Función de login (la validación que irá dentro de esta función)
+async function loginUser({ email, password }) {
+  const response = await fetch('', { // Asegúrate de que esta ruta sea la correcta en tu backend
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, password }), // Enviar los datos de login
+  });
+
+  if (!response.ok) {
+    throw new Error('Credenciales incorrectas'); // Si el login falla
+  }
+
+  return await response.json(); // Retorna los datos de la respuesta
+}
+**/
+
 /**
  * Initialize the "Board" view.
  * Sets up the task creation modal and handles task submission.
