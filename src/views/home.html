@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
+    <div class="container-login">
         <div class="form-container">
             <h1>Bienvenido!</h1>
             <h2>Login</h2>
@@ -15,7 +15,7 @@
             <form id="loginForm">
                 <input type="email" id="email" placeholder="Correo Electrónico" required>
                 <input type="password" id="password" placeholder="Contraseña" required>
-                                
+                                                
                 <button type="submit">Iniciar sesión</button> 
             </form>
 
@@ -23,11 +23,13 @@
             <div id="loginMsg"></div>
 
             <p>¿No tienes una cuenta? <a href="#/register">Registro</a></p>
+
+            <!-- Enlace para recuperar contraseña -->
+            <p><a href="#/forgot">¿Olvidaste tu contraseña?</a></p>
         </div>
         <div class="image-container">
             <img src="public/image_login.svg" alt="Imagen de Login">
         </div>
     </div>
-
 </body>
 </html>
