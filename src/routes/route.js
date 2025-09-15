@@ -1,4 +1,4 @@
-import { registerUser } from '../services/userService.js';
+import { registerUser,loginUser } from '../services/userService.js';
 
 const app = document.getElementById('app');
 
@@ -25,6 +25,7 @@ async function loadView(name) {
   app.innerHTML = html;
 
   if (name === 'home') initHome();
+ // if (name === 'home') initloginUser();
   if (name === 'board') initBoard();
   if (name === 'register') initRegister();
   if (name === 'forgot') initForgot();
@@ -73,7 +74,7 @@ function initHome() {
   const form = document.getElementById('loginForm'); // Cambiado a 'loginForm'
   const emailInput = document.getElementById('email'); // Cambiado a 'email'
   const passInput = document.getElementById('password');
-  const msg = document.getElementById('loginMsg'); // Cambiado a 'loginMsg' (Asegúrate de tener este contenedor)
+  const msg = document.getElementById('loginMsg'); // Cambiado a 'loginMsg'
 
   if (!form) return;
 
@@ -92,23 +93,26 @@ function initHome() {
     form.querySelector('button[type="submit"]').disabled = true; // Deshabilitar el botón durante el proceso
 
     try {
-      // Validación del login
-      const data = await loginUser({ email, password }); // Llamar la función de login
+      const data = await loginUser({ email, password });
 
-      msg.textContent = 'Login exitoso';
+      // Guardar token en localStorage
+      localStorage.setItem('token', data.token);
 
-      // Redirigir a otra página o cambiar el hash de la URL después de un login exitoso
-      setTimeout(() => (location.hash = '#/board'), 400); // Cambiar a la vista de tablero o la página deseada
-
+      // Redirigir al tablero
+      location.hash = '#/board';
     } catch (err) {
-      msg.textContent = `No se pudo iniciar sesión: ${err.message}`;
-    } finally {
+      if (msg) msg.textContent = `Error al iniciar sesión: ${err.message}`;
+    }
+    finally {
       form.querySelector('button[type="submit"]').disabled = false; // Habilitar el botón de nuevo
     }
   });
 }
 
+/**
 async function loginUser({ email, password }) {
+  
+  
   // Define las credenciales predeterminadas
   const defaultEmail = 'prueba@gmail.com';
   const defaultPassword = '12345';
@@ -122,15 +126,13 @@ async function loginUser({ email, password }) {
     throw new Error('Credenciales incorrectas');
   }
 }
-
-
-
-/** 
- validar ruta 
+*/
+ 
+ //validar ruta 
 
 // Función de login (la validación que irá dentro de esta función)
-async function loginUser({ email, password }) {
-  const response = await fetch('', { // Asegúrate de que esta ruta sea la correcta en tu backend
+/**async function initloginUser({ email, password }) {
+  const response = await fetch('/sessions/login', { // Asegúrate de que esta ruta sea la correcta en tu backend
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -138,13 +140,13 @@ async function loginUser({ email, password }) {
     body: JSON.stringify({ email, password }), // Enviar los datos de login
   });
 
-  if (!response.ok) {
+  if (response.ok) {
     throw new Error('Credenciales incorrectas'); // Si el login falla
   }
 
   return await response.json(); // Retorna los datos de la respuesta
 }
-**/
+*/
 
 /**
  * Initialize the "Board" view.
@@ -267,8 +269,41 @@ function initBoard() {
     location.hash = '#/home'; // Redirigir al login
   });
 }
+/**
+function initloginUser() {
+  const form = document.getElementById('loginForm');
+  if (!form) return;
 
+  const emailInput = document.getElementById('email');
+  const passInput  = document.getElementById('lpassword');
+  const msg        = document.getElementById('loginMsg');
 
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (msg) msg.textContent = '';
+
+    const email = emailInput?.value.trim();
+    const password = passInput?.value.trim();
+
+    if (!email || !password) {
+      if (msg) msg.textContent = 'Ingresa tu correo y contraseña.';
+      return;
+    }
+
+    try {
+      const data = await loginUser({ email, password });
+
+      // Guardar token en localStorage
+      localStorage.setItem('token', data.token);
+
+      // Redirigir al tablero
+      location.hash = '#/board';
+    } catch (err) {
+      if (msg) msg.textContent = `Error al iniciar sesión: ${err.message}`;
+    }
+  });
+}
+  */
 
 /**
  * Initialize the "Register" view.
