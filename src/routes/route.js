@@ -1,4 +1,4 @@
-import { registerUser,loginUser } from '../services/userService.js';
+import { registerUser,loginUser, CreateTask } from '../services/userService.js';
 
 const app = document.getElementById('app');
 
@@ -110,45 +110,6 @@ function initHome() {
 }
 
 /**
-async function loginUser({ email, password }) {
-  
-  
-  // Define las credenciales predeterminadas
-  const defaultEmail = 'prueba@gmail.com';
-  const defaultPassword = '12345';
-
-  // Validación local: compara las credenciales ingresadas con las predeterminadas
-  if (email === defaultEmail && password === defaultPassword) {
-    // Simula una respuesta exitosa
-    return { message: 'Login exitoso', userId: '12345' };
-  } else {
-    // Simula un error de credenciales incorrectas
-    throw new Error('Credenciales incorrectas');
-  }
-}
-*/
- 
- //validar ruta 
-
-// Función de login (la validación que irá dentro de esta función)
-/**async function initloginUser({ email, password }) {
-  const response = await fetch('/sessions/login', { // Asegúrate de que esta ruta sea la correcta en tu backend
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ email, password }), // Enviar los datos de login
-  });
-
-  if (response.ok) {
-    throw new Error('Credenciales incorrectas'); // Si el login falla
-  }
-
-  return await response.json(); // Retorna los datos de la respuesta
-}
-*/
-
-/**
  * Initialize the "Board" view.
  * Sets up the task creation modal and handles task submission.
  *
@@ -222,33 +183,14 @@ function initBoard() {
   }
 
   // Función para guardar la tarea en la base de datos (simulación de API)
-  async function saveTaskToDatabase(task) {
-    try {
-      const response = await fetch('/api/tasks', { // Reemplaza esta URL con la ruta correcta a tu API
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(task),
-      });
-
-      if (!response.ok) {
-        throw new Error('No se pudo guardar la tarea en la base de datos');
-      }
-
-      const savedTask = await response.json();
-      console.log('Tarea guardada en la base de datos:', savedTask);
-    } catch (err) {
-      console.error(err);
-      alert('Hubo un error al guardar la tarea');
-    }
-  }
+  f
 
   // Función para cargar las tareas desde la base de datos (simulación de carga de tareas)
   async function loadTasksFromDatabase() {
     try {
-      const response = await fetch('/api/tasks'); // Reemplaza esta URL con la ruta correcta a tu API
-      const tasks = await response.json();
+
+      const data = await CreateTask({ title, details, date, time, status });
+      msg.textContent = 'Registro exitoso';  
 
       tasks.forEach(task => {
         addTaskToDOM(task); // Añadir las tareas al DOM
@@ -269,41 +211,6 @@ function initBoard() {
     location.hash = '#/home'; // Redirigir al login
   });
 }
-/**
-function initloginUser() {
-  const form = document.getElementById('loginForm');
-  if (!form) return;
-
-  const emailInput = document.getElementById('email');
-  const passInput  = document.getElementById('lpassword');
-  const msg        = document.getElementById('loginMsg');
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (msg) msg.textContent = '';
-
-    const email = emailInput?.value.trim();
-    const password = passInput?.value.trim();
-
-    if (!email || !password) {
-      if (msg) msg.textContent = 'Ingresa tu correo y contraseña.';
-      return;
-    }
-
-    try {
-      const data = await loginUser({ email, password });
-
-      // Guardar token en localStorage
-      localStorage.setItem('token', data.token);
-
-      // Redirigir al tablero
-      location.hash = '#/board';
-    } catch (err) {
-      if (msg) msg.textContent = `Error al iniciar sesión: ${err.message}`;
-    }
-  });
-}
-  */
 
 /**
  * Initialize the "Register" view.

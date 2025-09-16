@@ -34,3 +34,7 @@ export async function registerUser({ username, lastname, birthdate, email, passw
 export async function loginUser({ email, password }) {
   return http.post('/api/v1/auth/login', { email, password });
 }
+
+export async function CreateTask(title, details, date, time, status) {
+  return http.post('/api/v1/tasks', { title, details, date, time, status });
+}
