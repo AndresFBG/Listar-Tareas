@@ -1,6 +1,15 @@
-import { registerUser,loginUser, CreateTask } from '../services/userService.js';
+import { registerUser, loginUser, CreateTask, updateUserProfile, getUserProfile, getUserTasks } from '../services/userService.js';
 
 const app = document.getElementById('app');
+
+// Datos del usuario en memoria (se cargará desde el servidor)
+let userData = {
+  name: '',
+  lastname: '',
+  email: '',
+  birthdate: '',
+  bio: ''
+};
 
 /**
  * Generate the URL of the requested view based on its name.
@@ -25,7 +34,6 @@ async function loadView(name) {
   app.innerHTML = html;
 
   if (name === 'home') initHome();
- // if (name === 'home') initloginUser();
   if (name === 'board') initBoard();
   if (name === 'register') initRegister();
   if (name === 'forgot') initForgot();
@@ -71,18 +79,18 @@ function handleRoute() {
  * @returns {void}
  */
 function initHome() {
-  const form = document.getElementById('loginForm'); // Cambiado a 'loginForm'
-  const emailInput = document.getElementById('email'); // Cambiado a 'email'
+  const form = document.getElementById('loginForm');
+  const emailInput = document.getElementById('email');
   const passInput = document.getElementById('password');
-  const msg = document.getElementById('loginMsg'); // Cambiado a 'loginMsg'
+  const msg = document.getElementById('loginMsg');
 
   if (!form) return;
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    msg.textContent = ''; // Limpiar mensajes previos
+    msg.textContent = '';
 
-    const email = emailInput?.value.trim();  // Obtener valores de email y contraseña
+    const email = emailInput?.value.trim();
     const password = passInput?.value.trim();
 
     if (!email || !password) {
@@ -90,7 +98,7 @@ function initHome() {
       return;
     }
 
-    form.querySelector('button[type="submit"]').disabled = true; // Deshabilitar el botón durante el proceso
+    form.querySelector('button[type="submit"]').disabled = true;
 
     try {
       const data = await loginUser({ email, password });
@@ -98,102 +106,223 @@ function initHome() {
       // Guardar token en localStorage
       localStorage.setItem('token', data.token);
 
+      // Cargar datos del usuario
+      await loadUserData();
+
       // Redirigir al tablero
       location.hash = '#/board';
     } catch (err) {
       if (msg) msg.textContent = `Error al iniciar sesión: ${err.message}`;
     }
     finally {
-      form.querySelector('button[type="submit"]').disabled = false; // Habilitar el botón de nuevo
+      form.querySelector('button[type="submit"]').disabled = false;
     }
   });
 }
 
 /**
+ * Load user data from server
+ */
+async function loadUserData() {
+  try {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const userProfile = await getUserProfile();
+      userData = { ...userData, ...userProfile };
+    }
+  } catch (error) {
+    console.error('Error loading user data:', error);
+  }
+}
+
+/**
  * Initialize the "Board" view.
  * Sets up the task creation modal and handles task submission.
+ * Also initializes the user profile modal.
  *
  * @function initBoard
  * @returns {void}
  */
 function initBoard() {
-  const form = document.getElementById('taskForm'); // Formulario de la tarea
-  const taskModal = document.getElementById('taskModal'); // Modal
-  const cancelBtn = document.getElementById('cancelBtn'); // Botón de cancelar
-  const newTaskBtn = document.getElementById('newTaskBtn'); // Botón de nueva tarea
-  const logoutBtn = document.getElementById('logoutBtn'); // Botón de cerrar sesión
-  
-  // Función para abrir el modal
-  newTaskBtn.addEventListener('click', () => {
-    taskModal.classList.add('show'); // Agregar la clase 'show' para hacer visible el modal
+  const form = document.getElementById('taskForm');
+  const taskModal = document.getElementById('taskModal');
+  const cancelBtn = document.getElementById('cancelBtn');
+  const newTaskBtn = document.getElementById('newTaskBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  // Elementos del modal de perfil
+  const profileBtn = document.getElementById('profileBtn');
+  const profileModal = document.getElementById('profileModal');
+  const profileForm = document.getElementById('profileForm');
+  const profileCancelBtn = document.getElementById('profileCancelBtn');
+  const successMessage = document.getElementById('successMessage');
+  const userAvatar = document.getElementById('userAvatar');
+
+  // Función para actualizar el avatar con las iniciales del usuario
+  function updateAvatar() {
+    if (userData.name && userData.lastname) {
+      const initials = (userData.name.charAt(0) + userData.lastname.charAt(0)).toUpperCase();
+      userAvatar.textContent = initials;
+    } else {
+      userAvatar.textContent = 'U';
+    }
+  }
+
+  // Función para cargar datos del usuario en el formulario de perfil
+  function loadUserDataInForm() {
+    document.getElementById('profileName').value = userData.name || '';
+    document.getElementById('profileLastname').value = userData.lastname || '';
+    document.getElementById('profileEmail').value = userData.email || '';
+    document.getElementById('profileBirthdate').value = userData.birthdate || '';
+    document.getElementById('profileBio').value = userData.bio || '';
+    updateAvatar();
+  }
+
+  // Función para mostrar modal
+  function showModal(modal) {
+    modal.classList.add('show');
+  }
+
+  // Función para ocultar modal
+  function hideModal(modal) {
+    modal.classList.remove('show');
+    if (modal === profileModal && successMessage) {
+      successMessage.style.display = 'none';
+    }
+  }
+
+  // Event listeners para el modal de perfil
+  if (profileBtn && profileModal) {
+    profileBtn.addEventListener('click', () => {
+      loadUserDataInForm();
+      showModal(profileModal);
+    });
+
+    profileCancelBtn?.addEventListener('click', () => {
+      hideModal(profileModal);
+    });
+
+    // Event listener para el formulario de perfil
+    profileForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = {
+        name: document.getElementById('profileName').value,
+        lastname: document.getElementById('profileLastname').value,
+        email: document.getElementById('profileEmail').value,
+        birthdate: document.getElementById('profileBirthdate').value,
+        bio: document.getElementById('profileBio').value
+      };
+      
+      try {
+        const saveBtn = profileForm.querySelector('.btn-save');
+        const originalText = saveBtn.textContent;
+        saveBtn.textContent = 'Guardando...';
+        saveBtn.disabled = true;
+        
+        // Llamar al servicio para actualizar el perfil
+        await updateUserProfile(formData);
+        
+        // Actualizar datos locales
+        userData = { ...userData, ...formData };
+        updateAvatar();
+        
+        console.log('Datos del usuario actualizados:', userData);
+        
+        // Mostrar mensaje de éxito
+        if (successMessage) {
+          successMessage.style.display = 'block';
+          setTimeout(() => {
+            successMessage.style.display = 'none';
+          }, 3000);
+        }
+        
+        saveBtn.textContent = originalText;
+        saveBtn.disabled = false;
+        
+      } catch (error) {
+        console.error('Error al actualizar perfil:', error);
+        alert('Error al actualizar el perfil. Por favor, intenta de nuevo.');
+        
+        const saveBtn = profileForm.querySelector('.btn-save');
+        saveBtn.textContent = 'Guardar Cambios';
+        saveBtn.disabled = false;
+      }
+    });
+  }
+
+  // Funcionalidad existente del modal de tareas
+  newTaskBtn?.addEventListener('click', () => {
+    showModal(taskModal);
     console.log('Modal abierto');
   });
 
-  // Función para cerrar el modal
-  cancelBtn.addEventListener('click', () => {
-    taskModal.classList.remove('show'); // Eliminar la clase 'show' para ocultar el modal
+  cancelBtn?.addEventListener('click', () => {
+    hideModal(taskModal);
     console.log('Modal cerrado');
   });
 
-  // Función para agregar una tarea
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault(); // Prevenir el comportamiento por defecto del formulario
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
     const title = document.getElementById('taskTitle').value;
     const details = document.getElementById('taskDetails').value;
     const date = document.getElementById('taskDate').value;
     const time = document.getElementById('taskTime').value;
     const status = document.getElementById('taskStatus').value;
 
-    // Validación de los campos
     if (!title || !details || !date || !time || !status) {
       alert('Por favor completa todos los campos.');
       return;
     }
 
-    // Crear una nueva tarea
     const newTask = { title, details, date, time, status };
     console.log('Nueva tarea agregada:', newTask);
 
-    // Añadir la tarea al DOM
     addTaskToDOM(newTask);
-
-    // Guardar la tarea en la base de datos
     await saveTaskToDatabase(newTask);
 
-    // Cerrar el modal y resetear el formulario
-    taskModal.classList.remove('show');
+    hideModal(taskModal);
     form.reset();
   });
 
   // Función para agregar la tarea al DOM
   function addTaskToDOM(task) {
-    const taskItem = document.createElement('li');
+    const taskItem = document.createElement('div');
     taskItem.className = 'task-item';
     taskItem.innerHTML = `
       <div class="task-title">${task.title}</div>
+      <div class="task-details">${task.details}</div>
       <div class="task-date">${task.date} ${task.time}</div>
-      <div class="task-status">${task.status}</div>
     `;
     
-    // Añadir la tarea a la columna correspondiente según el estado
     const taskList = document.getElementById(`${task.status}-tasks`);
     if (taskList) {
+      // Remover el estado vacío si existe
+      const emptyState = taskList.querySelector('.empty-state');
+      if (emptyState) {
+        emptyState.remove();
+      }
       taskList.appendChild(taskItem);
     }
   }
 
-  // Función para guardar la tarea en la base de datos (simulación de API)
-  f
+  // Función para guardar la tarea en la base de datos
+  async function saveTaskToDatabase(task) {
+    try {
+      await CreateTask(task);
+      console.log('Tarea guardada en la base de datos');
+    } catch (err) {
+      console.error('Error al guardar la tarea:', err);
+      alert('Error al guardar la tarea');
+    }
+  }
 
-  // Función para cargar las tareas desde la base de datos (simulación de carga de tareas)
+  // Función para cargar las tareas desde la base de datos
   async function loadTasksFromDatabase() {
     try {
-
-      const data = await CreateTask({ title, details, date, time, status });
-      msg.textContent = 'Registro exitoso';  
-
+      const tasks = await getUserTasks();
       tasks.forEach(task => {
-        addTaskToDOM(task); // Añadir las tareas al DOM
+        addTaskToDOM(task);
       });
     } catch (err) {
       console.error(err);
@@ -201,14 +330,27 @@ function initBoard() {
     }
   }
 
-  // Cargar las tareas cuando se inicia la página
+  // Cerrar modales al hacer clic fuera
+  window.addEventListener('click', (e) => {
+    if (e.target === profileModal) {
+      hideModal(profileModal);
+    }
+    if (e.target === taskModal) {
+      hideModal(taskModal);
+    }
+  });
+
+  // Cargar tareas y inicializar avatar
   loadTasksFromDatabase();
+  updateAvatar();
 
   // Función de cerrar sesión
-  logoutBtn.addEventListener('click', () => {
-    // Limpiar el localStorage y redirigir al login
-    localStorage.clear();
-    location.hash = '#/home'; // Redirigir al login
+  logoutBtn?.addEventListener('click', () => {
+    if (confirm('¿Estás seguro que deseas cerrar sesión?')) {
+      localStorage.clear();
+      userData = { name: '', lastname: '', email: '', birthdate: '', bio: '' };
+      location.hash = '#/home';
+    }
   });
 }
 
@@ -235,11 +377,9 @@ function initRegister() {
     e.preventDefault();  
     msg.textContent = ''; 
 
-  
     const fields = [userInput, lastnameInput, birthdateInput, emailInput, passInput, confirmPassInput];
     fields.forEach(field => field.classList.remove('error'));
 
-    
     const username = userInput?.value.trim();
     const lastname = lastnameInput?.value.trim();
     const birthdate = birthdateInput?.value.trim();  
@@ -247,10 +387,8 @@ function initRegister() {
     const password = passInput?.value.trim();
     const confirmPassword = confirmPassInput?.value.trim();
 
-   
     if (!username || !lastname || !birthdate || !email || !password || !confirmPassword) {
       msg.textContent = 'Por favor completa todos los campos.';
-      
       
       if (!username) userInput.classList.add('error');
       if (!lastname) lastnameInput.classList.add('error');
@@ -258,7 +396,6 @@ function initRegister() {
       if (!email) emailInput.classList.add('error');
       if (!password) passInput.classList.add('error');
       if (!confirmPassword) confirmPassInput.classList.add('error');
-      
       
       if (!username) userInput.focus();
       else if (!lastname) lastnameInput.focus();
@@ -278,33 +415,34 @@ function initRegister() {
       return;
     }
 
-    
     form.querySelector('button[type="submit"]').disabled = true;
 
     try {
-      
       const data = await registerUser({ username, lastname, birthdate, email, password });
       msg.textContent = 'Registro exitoso';  
 
-      
       document.getElementById('successModal').style.display = 'flex';
 
-      
       setTimeout(() => {
         document.getElementById('successModal').style.display = 'none';
         location.hash = '#/home';  
       }, 3000);
 
     } catch (err) {
-      
       msg.textContent = `Error: ${err.message}`;
     } finally {
-      
       form.querySelector('button[type="submit"]').disabled = false;
     }
   });
 }
 
+/**
+ * Initialize the "Forgot" view.
+ * Handles password recovery functionality.
+ *
+ * @function initForgot
+ * @returns {void}
+ */
 function initForgot() {
   const form = document.getElementById('recoverForm');
   const emailInput = document.getElementById('email');
@@ -326,19 +464,13 @@ function initForgot() {
     form.querySelector('button[type="submit"]').disabled = true;
 
     try {
-      const users = getUsers();
-      const user = users.find((u) => u.email === email);
-
-      if (!user) {
-        msg.textContent = 'El correo no está registrado.';
-        msg.style.color = 'red';
-        return;
-      }
-
+      // Aquí deberías implementar la lógica de recuperación de contraseña
+      // const response = await recoverPassword({ email });
+      
       msg.textContent = 'Se ha enviado un enlace para restablecer tu contraseña.';
       msg.style.color = 'green';
 
-      setTimeout(() => (location.hash = '#/login'), 2000);
+      setTimeout(() => (location.hash = '#/home'), 2000);
 
     } catch (err) {
       msg.textContent = `No se pudo recuperar la contraseña: ${err.message}`;
@@ -348,3 +480,4 @@ function initForgot() {
     }
   });
 }
+

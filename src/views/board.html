@@ -5,196 +5,49 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gestor de Tareas</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-
-    body {
-      background: #f9fafb;
-      color: #111827;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-
-    .container {
-      max-width: 1200px;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .header h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 16px;
-    }
-
-    .header-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 30px;
-    }
-
-    .header button {
-      background: #2563eb;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 10px 16px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-
-    .header button:hover {
-      background: #1d4ed8;
-    }
-
-    .logout-btn {
-      background: #ef4444;
-    }
-
-    .logout-btn:hover {
-      background: #dc2626;
-    }
-
-    .tasks-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-      width: 100%;
-      max-width: 1000px;
-    }
-
-    .task-column {
-      background: white;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      min-height: 320px;
-    }
-
-    .column-header {
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 12px;
-      border-bottom: 2px solid #e5e7eb;
-      padding-bottom: 6px;
-      text-align: center;
-    }
-
-    .task-item {
-      border: 1px solid #e5e7eb;
-      border-radius: 6px;
-      padding: 10px;
-      margin-bottom: 10px;
-      font-size: 0.9rem;
-      background: #f9fafb;
-    }
-
-    .empty-state {
-      text-align: center;
-      font-size: 0.9rem;
-      color: #9ca3af;
-      margin-top: auto;
-    }
-
-   /* Modal */
-    .modal {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5); /* Fondo semitransparente */
-      display: flex; justify-content: center; align-items: center;
-      visibility: hidden; opacity: 0;
-      transition: opacity 0.3s ease, visibility 0.3s ease; /* Transiciones para apertura y cierre */
-    }
-
-    .modal.show { 
-      visibility: visible; /* Cuando el modal se muestra */
-      opacity: 1; /* Cambio de opacidad para hacer visible */
-    }
-
-
-    .modal-content {
-      background: white;
-      border-radius: 8px;
-      padding: 20px;
-      width: 100%; max-width: 400px;
-    }
-
-    .modal-header {
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin-bottom: 16px;
-      text-align: center;
-    }
-
-    .form-group { margin-bottom: 12px; }
-    .form-group label {
-      font-size: 0.85rem; font-weight: 500; margin-bottom: 4px; display: block;
-    }
-
-    .form-group input, .form-group textarea, .form-group select {
-      width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #d1d5db;
-      font-size: 0.9rem;
-    }
-
-    .datetime-group { display: flex; gap: 10px; }
-
-    .modal-buttons {
-      display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;
-    }
-
-    .btn-save {
-      background: #2563eb; color: white; border: none; border-radius: 6px; padding: 10px 16px;
-      font-weight: 600; cursor: pointer;
-    }
-
-    .btn-cancel {
-      background: #9ca3af; color: white; border: none; border-radius: 6px; padding: 10px 16px;
-      font-weight: 600; cursor: pointer;
-    }
-
-    @media (max-width: 768px) {
-      .tasks-grid { grid-template-columns: 1fr; }
-    }
-  </style>
+  <link rel="stylesheet" href="home.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> <!-- FontAwesome -->
 </head>
 <body>
   <div class="container">
     <div class="header">
       <h1>MIS TAREAS</h1>
       <div class="header-buttons">
-        <button class="new-task-btn" id="newTaskBtn">+ Nueva</button>
+        <button class="new-task-btn" id="newTaskBtn">+ Nueva Tarea</button>
+        <button class="profile-btn" id="profileBtn">Mi Perfil</button>
         <button class="logout-btn" id="logoutBtn">Cerrar sesión</button>
       </div>
     </div>
 
     <div class="tasks-grid">
+      <!-- Columna "Por Hacer" -->
       <div class="task-column">
-        <div class="column-header">POR HACER</div>
+        <div class="column-header">
+          <span>POR HACER</span>
+          <button class="edit-btn" id="editTodoBtn"><i class="fas fa-edit"></i></button> <!-- Lápiz de edición -->
+        </div>
         <div id="todo-tasks">
           <div class="empty-state">No hay tareas pendientes</div>
         </div>
       </div>
 
+      <!-- Columna "Haciendo" -->
       <div class="task-column">
-        <div class="column-header">HACIENDO</div>
+        <div class="column-header">
+          <span>HACIENDO</span>
+          <button class="edit-btn" id="editDoingBtn"><i class="fas fa-edit"></i></button> <!-- Lápiz de edición -->
+        </div>
         <div id="doing-tasks">
           <div class="empty-state">No hay tareas en progreso</div>
         </div>
       </div>
 
+      <!-- Columna "Hecho" -->
       <div class="task-column">
-        <div class="column-header">HECHO</div>
+        <div class="column-header">
+          <span>HECHO</span>
+          <button class="edit-btn" id="editDoneBtn"><i class="fas fa-edit"></i></button> <!-- Lápiz de edición -->
+        </div>
         <div id="done-tasks">
           <div class="empty-state">No hay tareas completadas</div>
         </div>
@@ -202,42 +55,90 @@
     </div>
   </div>
 
-  <!-- Modal para Crear Nueva Tarea -->
-  <div id="taskModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">Crear Tarea</div>
-      <form id="taskForm">
-        <div class="form-group">
-          <label for="taskTitle">Título</label>
-          <input type="text" id="taskTitle" name="title" required>
-        </div>
-        <div class="form-group">
-          <label for="taskDetails">Detalles</label>
-          <textarea id="taskDetails" name="details"></textarea>
-        </div>
-        <div class="datetime-group">
-          <div class="form-group">
-            <label for="taskDate">Fecha</label>
-            <input type="date" id="taskDate" name="date" required>
-          </div>
-          <div class="form-group">
-            <label for="taskTime">Hora</label>
-            <input type="time" id="taskTime" name="time" required>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="taskStatus">Estado</label>
-          <select id="taskStatus" name="status" required>
-            <option value="">Seleccionar estado</option>
-            <option value="todo">Por hacer</option>
-            <option value="doing">Haciendo</option>
-            <option value="done">Hecho</option>
-          </select>
-        </div>
-        <div class="modal-buttons">
-          <button type="submit" class="btn-save">Guardar</button>
-          <button type="button" class="btn-cancel" id="cancelBtn">Cancelar</button>
-        </div>
-      </form>
+  <!-- Modal para Editar Perfil de Usuario -->
+<div id="profileModal" class="modal profile-modal">
+  <div class="modal-content">
+    <div class="modal-header">Mi Perfil</div>
+    
+    <!-- Avatar del usuario -->
+    <div class="profile-avatar" id="userAvatar">
+      U
     </div>
+    
+    <!-- Mensaje de éxito -->
+    <div id="successMessage" class="success-message">
+      ¡Perfil actualizado exitosamente!
+    </div>
+    
+    <form id="profileForm">
+      <div class="form-group">
+        <label for="profileName">Nombres</label>
+        <input type="text" id="profileName" name="name" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="profileLastname">Apellidos</label>
+        <input type="text" id="profileLastname" name="lastname" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="profileEmail">Correo Electrónico</label>
+        <input type="email" id="profileEmail" name="email" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="profileBirthdate">Fecha de Nacimiento</label>
+        <input type="date" id="profileBirthdate" name="birthdate" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="profileBio">Acerca de mí (opcional)</label>
+        <textarea id="profileBio" name="bio" rows="3" placeholder="Cuéntanos un poco sobre ti..."></textarea>
+      </div>
+      
+      <div class="modal-buttons">
+        <button type="submit" class="btn-save">Guardar Cambios</button>
+        <button type="button" class="btn-cancel" id="profileCancelBtn">Cancelar</button>
+      </div>
+    </form>
   </div>
+</div>
+
+
+  <!-- Modal para Editar Perfil de Usuario -->
+  <div id="profileModal" class="modal profile-modal">
+    <div class="modal-content">
+      <div class="modal-header">Mi Perfil</div>
+      
+      <!-- Avatar del usuario -->
+      <div class="profile-avatar" id="userAvatar">
+        U
+      </div>
+      
+      <!-- Mensaje de éxito -->
+      <div id="successMessage" class="success-message">
+        ¡Perfil actualizado exitosamente!
+      </div>
+      
+      <form id="profileForm">
+        <div class="form-group">
+          <label for="profileName">Nombres</label>
+          <input type="text" id="profileName" name="name" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="profileLastname">Apellidos</label>
+          <input type="text" id="profileLastname" name="lastname" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="profileEmail">Correo Electrónico</label>
+          <input type="email" id="profileEmail" name="email" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="profileBirthdate">Fecha de Nacimiento</label>
+          <input type="date" id="profileBirthdate" name="birthdate" required>
+        </div>
+        
+        <div class
