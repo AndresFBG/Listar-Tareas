@@ -205,7 +205,7 @@ function initBoard() {
     // Event listener para el formulario de perfil
     profileForm?.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
+
       const formData = {
         name: document.getElementById('profileName').value,
         lastname: document.getElementById('profileLastname').value,
@@ -213,22 +213,22 @@ function initBoard() {
         birthdate: document.getElementById('profileBirthdate').value,
         bio: document.getElementById('profileBio').value
       };
-      
+
       try {
         const saveBtn = profileForm.querySelector('.btn-save');
         const originalText = saveBtn.textContent;
         saveBtn.textContent = 'Guardando...';
         saveBtn.disabled = true;
-        
+
         // Llamar al servicio para actualizar el perfil
         await updateUserProfile(formData);
-        
+
         // Actualizar datos locales
         userData = { ...userData, ...formData };
         updateAvatar();
-        
+
         console.log('Datos del usuario actualizados:', userData);
-        
+
         // Mostrar mensaje de éxito
         if (successMessage) {
           successMessage.style.display = 'block';
@@ -236,14 +236,14 @@ function initBoard() {
             successMessage.style.display = 'none';
           }, 3000);
         }
-        
+
         saveBtn.textContent = originalText;
         saveBtn.disabled = false;
-        
+
       } catch (error) {
         console.error('Error al actualizar perfil:', error);
         alert('Error al actualizar el perfil. Por favor, intenta de nuevo.');
-        
+
         const saveBtn = profileForm.querySelector('.btn-save');
         saveBtn.textContent = 'Guardar Cambios';
         saveBtn.disabled = false;
@@ -270,16 +270,40 @@ function initBoard() {
     const time = document.getElementById('taskTime').value;
     const status = document.getElementById('taskStatus').value;
 
-    if (!title || !details || !date || !time || !status) {
-      alert('Por favor completa todos los campos.');
-      return;
-    }
+    //Mapeo front → back
+    const statusMap = {
+      todo: "Por Hacer",
+      doing: "Haciendo",
+      done: "Hecho"
+    };
 
-    const newTask = { title, details, date, time, status };
-    console.log('Nueva tarea agregada:', newTask);
+    //Mapeo back → front (para pintar en el modal)
+    const reverseStatusMap = {
+      "Por Hacer": "todo",
+      Haciendo: "doing",
+      Hecho: "done"
+    };
 
-    addTaskToDOM(newTask);
-    await saveTaskToDatabase(newTask);
+    //Lo que mandas al backend
+    const backendTask = {
+      title,
+      details,
+      date,
+      time,
+      status: statusMap[status] || status
+    };
+
+    //Lo que usas en el DOM
+    const frontendTask = {
+      ...backendTask,
+      status: reverseStatusMap[backendTask.status]
+    };
+
+    //console.log("Enviado al backend:", backendTask);
+    //console.log("Mostrado en el modal:", frontendTask);
+
+    addTaskToDOM(frontendTask);              //se pinta en el modal
+    await saveTaskToDatabase(backendTask);  //se guarda en el backend
 
     hideModal(taskModal);
     form.reset();
@@ -294,7 +318,7 @@ function initBoard() {
       <div class="task-details">${task.details}</div>
       <div class="task-date">${task.date} ${task.time}</div>
     `;
-    
+
     const taskList = document.getElementById(`${task.status}-tasks`);
     if (taskList) {
       // Remover el estado vacío si existe
@@ -309,13 +333,15 @@ function initBoard() {
   // Función para guardar la tarea en la base de datos
   async function saveTaskToDatabase(task) {
     try {
-      await CreateTask(task);
-      console.log('Tarea guardada en la base de datos');
+      const { title, details, date, time, status } = task;
+      const data = await CreateTask({ title, details, date, time, status });
+      //msg.textContent = 'Tarea guardada en la base de datos';  
     } catch (err) {
       console.error('Error al guardar la tarea:', err);
       alert('Error al guardar la tarea');
     }
   }
+
 
   // Función para cargar las tareas desde la base de datos
   async function loadTasksFromDatabase() {
@@ -374,32 +400,32 @@ function initRegister() {
   if (!form) return;
 
   form.addEventListener('submit', async (e) => {
-    e.preventDefault();  
-    msg.textContent = ''; 
+    e.preventDefault();
+    msg.textContent = '';
 
     const fields = [userInput, lastnameInput, birthdateInput, emailInput, passInput, confirmPassInput];
     fields.forEach(field => field.classList.remove('error'));
 
     const username = userInput?.value.trim();
     const lastname = lastnameInput?.value.trim();
-    const birthdate = birthdateInput?.value.trim();  
+    const birthdate = birthdateInput?.value.trim();
     const email = emailInput?.value.trim();
     const password = passInput?.value.trim();
     const confirmPassword = confirmPassInput?.value.trim();
 
     if (!username || !lastname || !birthdate || !email || !password || !confirmPassword) {
       msg.textContent = 'Por favor completa todos los campos.';
-      
+
       if (!username) userInput.classList.add('error');
       if (!lastname) lastnameInput.classList.add('error');
-      if (!birthdate) birthdateInput.classList.add('error');  
+      if (!birthdate) birthdateInput.classList.add('error');
       if (!email) emailInput.classList.add('error');
       if (!password) passInput.classList.add('error');
       if (!confirmPassword) confirmPassInput.classList.add('error');
-      
+
       if (!username) userInput.focus();
       else if (!lastname) lastnameInput.focus();
-      else if (!birthdate) birthdateInput.focus();  
+      else if (!birthdate) birthdateInput.focus();
       else if (!email) emailInput.focus();
       else if (!password) passInput.focus();
       else if (!confirmPassword) confirmPassInput.focus();
@@ -409,8 +435,8 @@ function initRegister() {
 
     if (password !== confirmPassword) {
       msg.textContent = 'Las contraseñas no coinciden.';
-      passInput.classList.add('error');  
-      confirmPassInput.classList.add('error');  
+      passInput.classList.add('error');
+      confirmPassInput.classList.add('error');
       passInput.focus();
       return;
     }
@@ -419,13 +445,13 @@ function initRegister() {
 
     try {
       const data = await registerUser({ username, lastname, birthdate, email, password });
-      msg.textContent = 'Registro exitoso';  
+      msg.textContent = 'Registro exitoso';
 
       document.getElementById('successModal').style.display = 'flex';
 
       setTimeout(() => {
         document.getElementById('successModal').style.display = 'none';
-        location.hash = '#/home';  
+        location.hash = '#/home';
       }, 3000);
 
     } catch (err) {
@@ -466,7 +492,7 @@ function initForgot() {
     try {
       // Aquí deberías implementar la lógica de recuperación de contraseña
       // const response = await recoverPassword({ email });
-      
+
       msg.textContent = 'Se ha enviado un enlace para restablecer tu contraseña.';
       msg.style.color = 'green';
 
