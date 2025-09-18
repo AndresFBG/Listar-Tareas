@@ -4,7 +4,7 @@ import { http } from '../api/http.js';
  * Register a new user in the system.
  *
  * Sends a POST request to the backend API (`/api/v1/users`)
- * with the provided username and password.
+ * with the provided user data.
  *
  * @async
  * @function registerUser
@@ -61,7 +61,7 @@ export async function loginUser({ email, password }) {
  * @param {string} taskData.details - Task details
  * @param {string} taskData.date - Task date
  * @param {string} taskData.time - Task time
- * @param {string} taskData.status - Task status (todo, doing, done)
+ * @param {string} taskData.status - Task status (Por Hacer, Haciendo, Hecho)
  * @returns {Promise<Object>} Created task object
  * 
  * @example
@@ -71,7 +71,7 @@ export async function loginUser({ email, password }) {
  *     details: "Finish the user authentication module",
  *     date: "2024-01-15",
  *     time: "14:30",
- *     status: "todo"
+ *     status: "Por Hacer"
  *   });
  *   console.log("Task created:", task);
  * } catch (err) {
@@ -153,14 +153,15 @@ export async function getUserTasks() {
  * @param {string} [taskData.details] - Task details
  * @param {string} [taskData.date] - Task date
  * @param {string} [taskData.time] - Task time
- * @param {string} [taskData.status] - Task status (todo, doing, done)
+ * @param {string} [taskData.status] - Task status (Por Hacer, Haciendo, Hecho)
  * @returns {Promise<Object>} Updated task object
  * @throws {Error} If the API responds with an error status or message.
  * 
  * @example
  * try {
  *   const updatedTask = await updateTask("task123", {
- *     status: "done"
+ *     title: "Updated task title",
+ *     status: "Hecho"
  *   });
  *   console.log("Task updated:", updatedTask);
  * } catch (err) {
@@ -187,4 +188,58 @@ export async function updateTask(taskId, { title, details, date, time, status })
  */
 export async function deleteTask(taskId) {
   return http.delete(`/api/v1/tasks/${taskId}`);
+}
+
+/**
+ * Get a specific task by ID
+ * @param {string} taskId - Task ID to retrieve
+ * @returns {Promise<Object>} Task object
+ * @throws {Error} If the API responds with an error status or message.
+ * 
+ * @example
+ * try {
+ *   const task = await getTaskById("task123");
+ *   console.log("Task retrieved:", task);
+ * } catch (err) {
+ *   console.error("Failed to get task:", err.message);
+ * }
+ */
+export async function getTaskById(taskId) {
+  return http.get(`/api/v1/tasks/${taskId}`);
+}
+
+/**
+ * Get tasks filtered by status
+ * @param {string} status - Task status to filter by (Por Hacer, Haciendo, Hecho)
+ * @returns {Promise<Array>} Array of tasks with the specified status
+ * @throws {Error} If the API responds with an error status or message.
+ * 
+ * @example
+ * try {
+ *   const todoTasks = await getTasksByStatus("Por Hacer");
+ *   console.log("Todo tasks:", todoTasks);
+ * } catch (err) {
+ *   console.error("Failed to get tasks by status:", err.message);
+ * }
+ */
+export async function getTasksByStatus(status) {
+  return http.get(`/api/v1/tasks?status=${encodeURIComponent(status)}`);
+}
+
+/**
+ * Search tasks by title or details
+ * @param {string} query - Search query
+ * @returns {Promise<Array>} Array of matching tasks
+ * @throws {Error} If the API responds with an error status or message.
+ * 
+ * @example
+ * try {
+ *   const tasks = await searchTasks("authentication");
+ *   console.log("Search results:", tasks);
+ * } catch (err) {
+ *   console.error("Search failed:", err.message);
+ * }
+ */
+export async function searchTasks(query) {
+  return http.get(`/api/v1/tasks/search?q=${encodeURIComponent(query)}`);
 }

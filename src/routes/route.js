@@ -1,4 +1,4 @@
-import { registerUser, loginUser, CreateTask, updateUserProfile, getUserProfile, getUserTasks } from '../services/userService.js';
+import { registerUser, loginUser, CreateTask, updateUserProfile, getUserProfile, getUserTasks, updateTask, deleteTask } from '../services/userService.js';
 
 const app = document.getElementById('app');
 
@@ -10,6 +10,11 @@ let userData = {
   birthdate: '',
   bio: ''
 };
+
+// Variables para manejo de tareas
+let currentTaskId = null;
+let isEditMode = false;
+let currentTaskData = null;
 
 /**
  * Generate the URL of the requested view based on its name.
@@ -138,7 +143,7 @@ async function loadUserData() {
 /**
  * Initialize the "Board" view.
  * Sets up the task creation modal and handles task submission.
- * Also initializes the user profile modal.
+ * Also initializes the user profile modal and task management.
  *
  * @function initBoard
  * @returns {void}
@@ -146,6 +151,8 @@ async function loadUserData() {
 function initBoard() {
   const form = document.getElementById('taskForm');
   const taskModal = document.getElementById('taskModal');
+  const taskModalTitle = document.getElementById('taskModalTitle');
+  const saveTaskBtn = document.getElementById('saveTaskBtn');
   const cancelBtn = document.getElementById('cancelBtn');
   const newTaskBtn = document.getElementById('newTaskBtn');
   const logoutBtn = document.getElementById('logoutBtn');
@@ -157,6 +164,11 @@ function initBoard() {
   const profileCancelBtn = document.getElementById('profileCancelBtn');
   const successMessage = document.getElementById('successMessage');
   const userAvatar = document.getElementById('userAvatar');
+
+  // Elementos del modal de eliminación
+  const deleteModal = document.getElementById('deleteModal');
+  const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+  const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
 
   // Función para actualizar el avatar con las iniciales del usuario
   function updateAvatar() {
@@ -189,6 +201,33 @@ function initBoard() {
     if (modal === profileModal && successMessage) {
       successMessage.style.display = 'none';
     }
+  }
+
+  // Función para resetear el formulario de tareas
+  function resetTaskForm() {
+    form.reset();
+    document.getElementById('taskId').value = '';
+    currentTaskId = null;
+    currentTaskData = null;
+    isEditMode = false;
+    taskModalTitle.textContent = 'Crear Tarea';
+    saveTaskBtn.textContent = 'Guardar';
+  }
+
+  // Función para llenar el formulario con datos de la tarea para editar
+  function fillTaskForm(task) {
+    document.getElementById('taskId').value = task.id;
+    document.getElementById('taskTitle').value = task.title;
+    document.getElementById('taskDetails').value = task.details;
+    document.getElementById('taskDate').value = task.date;
+    document.getElementById('taskTime').value = task.time;
+    document.getElementById('taskStatus').value = task.status;
+    
+    currentTaskId = task.id;
+    currentTaskData = { ...task };
+    isEditMode = true;
+    taskModalTitle.textContent = 'Editar Tarea';
+    saveTaskBtn.textContent = 'Actualizar';
   }
 
   // Event listeners para el modal de perfil
@@ -251,17 +290,51 @@ function initBoard() {
     });
   }
 
-  // Funcionalidad existente del modal de tareas
+  // Event listeners para tareas
   newTaskBtn?.addEventListener('click', () => {
+    resetTaskForm();
     showModal(taskModal);
-    console.log('Modal abierto');
   });
 
   cancelBtn?.addEventListener('click', () => {
+    resetTaskForm();
     hideModal(taskModal);
-    console.log('Modal cerrado');
   });
 
+  // Event listener para el modal de eliminación
+  cancelDeleteBtn?.addEventListener('click', () => {
+    hideModal(deleteModal);
+    currentTaskId = null;
+    currentTaskData = null;
+  });
+
+  confirmDeleteBtn?.addEventListener('click', async () => {
+    if (currentTaskId) {
+      try {
+        await deleteTask(currentTaskId);
+        
+        // Remover la tarea del DOM
+        const taskElement = document.querySelector(`[data-task-id="${currentTaskId}"]`);
+        if (taskElement) {
+          taskElement.remove();
+        }
+        
+        // Verificar si la columna está vacía y mostrar mensaje
+        checkEmptyColumns();
+        
+        hideModal(deleteModal);
+        currentTaskId = null;
+        currentTaskData = null;
+        
+        console.log('Tarea eliminada exitosamente');
+      } catch (error) {
+        console.error('Error al eliminar la tarea:', error);
+        alert('Error al eliminar la tarea. Por favor, intenta de nuevo.');
+      }
+    }
+  });
+
+  // Event listener para el formulario de tareas
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const title = document.getElementById('taskTitle').value;
@@ -270,22 +343,27 @@ function initBoard() {
     const time = document.getElementById('taskTime').value;
     const status = document.getElementById('taskStatus').value;
 
-    //Mapeo front → back
+    if (!title || !details || !date || !time || !status) {
+      alert('Por favor completa todos los campos.');
+      return;
+    }
+
+    // Mapeo front → back
     const statusMap = {
       todo: "Por Hacer",
       doing: "Haciendo",
       done: "Hecho"
     };
 
-    //Mapeo back → front (para pintar en el modal)
+    // Mapeo back → front
     const reverseStatusMap = {
       "Por Hacer": "todo",
       Haciendo: "doing",
       Hecho: "done"
     };
 
-    //Lo que mandas al backend
-    const backendTask = {
+    // Datos para el backend
+    const backendTaskData = {
       title,
       details,
       date,
@@ -293,28 +371,101 @@ function initBoard() {
       status: statusMap[status] || status
     };
 
-    //Lo que usas en el DOM
-    const frontendTask = {
-      ...backendTask,
-      status: reverseStatusMap[backendTask.status]
-    };
+    try {
+      const saveBtn = form.querySelector('.btn-save');
+      const originalText = saveBtn.textContent;
+      saveBtn.textContent = isEditMode ? 'Actualizando...' : 'Guardando...';
+      saveBtn.disabled = true;
 
-    //console.log("Enviado al backend:", backendTask);
-    //console.log("Mostrado en el modal:", frontendTask);
+      let taskResult;
 
-    addTaskToDOM(frontendTask);              //se pinta en el modal
-    await saveTaskToDatabase(backendTask);  //se guarda en el backend
+      if (isEditMode && currentTaskId) {
+        // Actualizar tarea existente
+        taskResult = await updateTask(currentTaskId, backendTaskData);
+        
+        // Remover la tarea antigua del DOM si cambió de columna
+        const oldTaskElement = document.querySelector(`[data-task-id="${currentTaskId}"]`);
+        if (oldTaskElement) {
+          oldTaskElement.remove();
+        }
+        
+        // Agregar la tarea actualizada
+        const frontendTask = {
+          ...taskResult,
+          id: currentTaskId,
+          status: reverseStatusMap[taskResult.status] || status
+        };
+        
+        addTaskToDOM(frontendTask);
+        console.log('Tarea actualizada exitosamente');
+      } else {
+        // Crear nueva tarea
+        taskResult = await CreateTask(backendTaskData);
+        
+        const frontendTask = {
+          ...taskResult,
+          status: reverseStatusMap[taskResult.status] || status
+        };
+        
+        addTaskToDOM(frontendTask);
+        console.log('Nueva tarea creada exitosamente');
+      }
 
-    hideModal(taskModal);
-    form.reset();
+      // Verificar columnas vacías
+      checkEmptyColumns();
+
+      hideModal(taskModal);
+      resetTaskForm();
+      
+      saveBtn.textContent = originalText;
+      saveBtn.disabled = false;
+
+    } catch (error) {
+      console.error('Error al guardar la tarea:', error);
+      alert('Error al guardar la tarea. Por favor, intenta de nuevo.');
+      
+      const saveBtn = form.querySelector('.btn-save');
+      saveBtn.textContent = isEditMode ? 'Actualizar' : 'Guardar';
+      saveBtn.disabled = false;
+    }
   });
+
+  // Función para verificar columnas vacías
+  function checkEmptyColumns() {
+    ['todo', 'doing', 'done'].forEach(status => {
+      const taskList = document.getElementById(`${status}-tasks`);
+      if (taskList && taskList.children.length === 0) {
+        const emptyStateMessages = {
+          todo: 'No hay tareas pendientes',
+          doing: 'No hay tareas en progreso',
+          done: 'No hay tareas completadas'
+        };
+        
+        const emptyState = document.createElement('div');
+        emptyState.className = 'empty-state';
+        emptyState.textContent = emptyStateMessages[status];
+        taskList.appendChild(emptyState);
+      }
+    });
+  }
 
   // Función para agregar la tarea al DOM
   function addTaskToDOM(task) {
     const taskItem = document.createElement('div');
     taskItem.className = 'task-item';
+    taskItem.setAttribute('data-task-id', task.id);
     taskItem.innerHTML = `
-      <div class="task-title">${task.title}</div>
+      <div class="task-header">
+        <div class="task-title">${task.title}</div>
+        <div class="task-actions">
+          <button class="task-action-btn task-edit-btn" onclick="editTask('${task.id}')" title="Editar tarea">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="task-action-btn task-delete-btn" onclick="confirmDeleteTask('${task.id}')" title="Eliminar tarea">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
       <div class="task-details">${task.details}</div>
       <div class="task-date">${task.date} ${task.time}</div>
     `;
@@ -330,30 +481,68 @@ function initBoard() {
     }
   }
 
-  // Función para guardar la tarea en la base de datos
-  async function saveTaskToDatabase(task) {
-    try {
-      const { title, details, date, time, status } = task;
-      const data = await CreateTask({ title, details, date, time, status });
-      //msg.textContent = 'Tarea guardada en la base de datos';  
-    } catch (err) {
-      console.error('Error al guardar la tarea:', err);
-      alert('Error al guardar la tarea');
-    }
-  }
-
-
   // Función para cargar las tareas desde la base de datos
   async function loadTasksFromDatabase() {
     try {
       const tasks = await getUserTasks();
+      
+      // Mapeo back → front para mostrar tareas
+      const reverseStatusMap = {
+        "Por Hacer": "todo",
+        Haciendo: "doing",
+        Hecho: "done"
+      };
+
       tasks.forEach(task => {
-        addTaskToDOM(task);
+        const frontendTask = {
+          ...task,
+          status: reverseStatusMap[task.status] || task.status
+        };
+        addTaskToDOM(frontendTask);
       });
     } catch (err) {
-      console.error(err);
-      alert('Hubo un error al cargar las tareas');
+      console.error('Error al cargar tareas:', err);
     }
+  }
+
+  // Funciones globales para los botones de acción (necesarias para onclick)
+  window.editTask = function(taskId) {
+    // Encontrar la tarea en el DOM para obtener sus datos
+    const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+    if (taskElement) {
+      const taskData = {
+        id: taskId,
+        title: taskElement.querySelector('.task-title').textContent,
+        details: taskElement.querySelector('.task-details').textContent,
+        date: taskElement.querySelector('.task-date').textContent.split(' ')[0],
+        time: taskElement.querySelector('.task-date').textContent.split(' ')[1],
+        status: getTaskStatus(taskElement)
+      };
+      
+      fillTaskForm(taskData);
+      showModal(taskModal);
+    }
+  };
+
+  window.confirmDeleteTask = function(taskId) {
+    currentTaskId = taskId;
+    const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+    if (taskElement) {
+      currentTaskData = {
+        id: taskId,
+        title: taskElement.querySelector('.task-title').textContent
+      };
+    }
+    showModal(deleteModal);
+  };
+
+  // Función auxiliar para obtener el estado de la tarea basado en su contenedor
+  function getTaskStatus(taskElement) {
+    const parent = taskElement.parentElement;
+    if (parent.id === 'todo-tasks') return 'todo';
+    if (parent.id === 'doing-tasks') return 'doing';
+    if (parent.id === 'done-tasks') return 'done';
+    return 'todo';
   }
 
   // Cerrar modales al hacer clic fuera
@@ -362,7 +551,13 @@ function initBoard() {
       hideModal(profileModal);
     }
     if (e.target === taskModal) {
+      resetTaskForm();
       hideModal(taskModal);
+    }
+    if (e.target === deleteModal) {
+      hideModal(deleteModal);
+      currentTaskId = null;
+      currentTaskData = null;
     }
   });
 
@@ -490,9 +685,6 @@ function initForgot() {
     form.querySelector('button[type="submit"]').disabled = true;
 
     try {
-      // Aquí deberías implementar la lógica de recuperación de contraseña
-      // const response = await recoverPassword({ email });
-
       msg.textContent = 'Se ha enviado un enlace para restablecer tu contraseña.';
       msg.style.color = 'green';
 
@@ -506,4 +698,3 @@ function initForgot() {
     }
   });
 }
-
