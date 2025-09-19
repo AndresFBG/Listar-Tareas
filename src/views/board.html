@@ -12,9 +12,9 @@
   <div class="container">
     <!-- Encabezado con botones -->
     <div class="header">
-      <h1>MIS TAREAS</h1>
+      <h1>¡Organiza tus tareas!</h1>
       <div class="header-buttons">
-        <button class="new-task-btn" id="newTaskBtn">+ Nueva Tarea</button>
+        <button class="new-task-btn" id="newTaskBtn">+ Agregar tarea</button>
         <button class="profile-btn" id="profileBtn">Mi Perfil</button>
         <button class="logout-btn" id="logoutBtn">Cerrar sesión</button>
       </div>
@@ -22,10 +22,10 @@
 
     <!-- Contenedor de las tareas -->
     <div class="tasks-grid">
-      <!-- Columna "Por Hacer" -->
+      <!-- Columna "Pendientes" -->
       <div class="task-column">
         <div class="column-header">
-          <span>POR HACER</span>
+          <span>Pendientes:</span>
           <button class="edit-btn" id="editTodoBtn" title="Editar nombre de columna">
            <!-- <i class="fas fa-edit"></i> -->  
           </button>
@@ -38,7 +38,7 @@
       <!-- Columna "Haciendo" -->
       <div class="task-column">
         <div class="column-header">
-          <span>HACIENDO</span>
+          <span>En progreso:</span>
           <button class="edit-btn" id="editDoingBtn" title="Editar nombre de columna">
             <!-- <i class="fas fa-edit"></i> -->
           </button>
@@ -51,7 +51,7 @@
       <!-- Columna "Hecho" -->
       <div class="task-column">
         <div class="column-header">
-          <span>HECHO</span>
+          <span>Completadas:</span>
           <button class="edit-btn" id="editDoneBtn" title="Editar nombre de columna">
             <!-- <i class="fas fa-edit"></i> -->
           </button>
@@ -91,9 +91,9 @@
           <label for="taskStatus">Estado</label>
           <select id="taskStatus" name="status" required>
             <option value="">Seleccionar estado</option>
-            <option value="todo">Por hacer</option>
-            <option value="doing">Haciendo</option>
-            <option value="done">Hecho</option>
+            <option value="todo">Pentiente</option>
+            <option value="doing">En progreso</option>
+            <option value="done">Completada</option>
           </select>
         </div>
         <div class="modal-buttons">
