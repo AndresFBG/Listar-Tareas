@@ -6,7 +6,7 @@
   <title>Gestor de Tareas</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="home.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> <!-- FontAwesome -->
 </head>
 <body>
   <div class="container">
@@ -26,9 +26,7 @@
       <div class="task-column">
         <div class="column-header">
           <span>POR HACER</span>
-          <button class="edit-btn" id="editTodoBtn" title="Editar nombre de columna">
-            <i class="fas fa-edit"></i>
-          </button>
+          <button class="edit-btn" id="editTodoBtn"><i class="fas fa-edit"></i></button> <!-- Lápiz de edición -->
         </div>
         <div id="todo-tasks">
           <div class="empty-state">No hay tareas pendientes</div>
@@ -39,9 +37,7 @@
       <div class="task-column">
         <div class="column-header">
           <span>HACIENDO</span>
-          <button class="edit-btn" id="editDoingBtn" title="Editar nombre de columna">
-            <i class="fas fa-edit"></i>
-          </button>
+          <button class="edit-btn" id="editDoingBtn"><i class="fas fa-edit"></i></button> <!-- Lápiz de edición -->
         </div>
         <div id="doing-tasks">
           <div class="empty-state">No hay tareas en progreso</div>
@@ -52,9 +48,7 @@
       <div class="task-column">
         <div class="column-header">
           <span>HECHO</span>
-          <button class="edit-btn" id="editDoneBtn" title="Editar nombre de columna">
-            <i class="fas fa-edit"></i>
-          </button>
+          <button class="edit-btn" id="editDoneBtn"><i class="fas fa-edit"></i></button> <!-- Lápiz de edición -->
         </div>
         <div id="done-tasks">
           <div class="empty-state">No hay tareas completadas</div>
@@ -68,14 +62,13 @@
     <div class="modal-content">
       <div class="modal-header" id="taskModalTitle">Crear Tarea</div>
       <form id="taskForm">
-        <input type="hidden" id="taskId" name="taskId">
         <div class="form-group">
           <label for="taskTitle">Título</label>
           <input type="text" id="taskTitle" name="title" required>
         </div>
         <div class="form-group">
           <label for="taskDetails">Detalles</label>
-          <textarea id="taskDetails" name="details" rows="3"></textarea>
+          <textarea id="taskDetails" name="details"></textarea>
         </div>
         <div class="datetime-group">
           <div class="form-group">
@@ -97,7 +90,7 @@
           </select>
         </div>
         <div class="modal-buttons">
-          <button type="submit" class="btn-save" id="saveTaskBtn">Guardar</button>
+          <button type="submit" class="btn-save">Guardar</button>
           <button type="button" class="btn-cancel" id="cancelBtn">Cancelar</button>
         </div>
       </form>
@@ -151,18 +144,6 @@
           <button type="button" class="btn-cancel" id="profileCancelBtn">Cancelar</button>
         </div>
       </form>
-    </div>
-  </div>
-
-  <!-- Modal de Confirmación para Eliminar -->
-  <div id="deleteModal" class="modal">
-    <div class="modal-content delete-modal">
-      <div class="modal-header">¿Eliminar Tarea?</div>
-      <p class="delete-message">¿Estás seguro de que deseas eliminar esta tarea? Esta acción no se puede deshacer.</p>
-      <div class="modal-buttons">
-        <button type="button" class="btn-delete" id="confirmDeleteBtn">Eliminar</button>
-        <button type="button" class="btn-cancel" id="cancelDeleteBtn">Cancelar</button>
-      </div>
     </div>
   </div>
 

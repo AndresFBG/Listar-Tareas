@@ -133,7 +133,14 @@ async function loadUserData() {
     const token = localStorage.getItem('token');
     if (token) {
       const userProfile = await getUserProfile();
-      userData = { ...userData, ...userProfile };
+      console.log('Datos recibidos del backend:', userProfile);
+      userData = {
+        name: userProfile.Name || '',
+        lastname: userProfile.Lastname || '',
+        email: userProfile.Email || '',
+        birthdate: userProfile.Birthdate || '',
+        bio: userProfile.Bio || ''
+      };
     }
   } catch (error) {
     console.error('Error loading user data:', error);
@@ -148,6 +155,7 @@ async function loadUserData() {
  * @function initBoard
  * @returns {void}
  */
+
 function initBoard() {
   const form = document.getElementById('taskForm');
   const taskModal = document.getElementById('taskModal');
@@ -182,6 +190,7 @@ function initBoard() {
 
   // Función para cargar datos del usuario en el formulario de perfil
   function loadUserDataInForm() {
+
     document.getElementById('profileName').value = userData.name || '';
     document.getElementById('profileLastname').value = userData.lastname || '';
     document.getElementById('profileEmail').value = userData.email || '';
@@ -190,6 +199,7 @@ function initBoard() {
     updateAvatar();
   }
 
+  
   // Función para mostrar modal
   function showModal(modal) {
     modal.classList.add('show');
@@ -232,9 +242,11 @@ function initBoard() {
 
   // Event listeners para el modal de perfil
   if (profileBtn && profileModal) {
-    profileBtn.addEventListener('click', () => {
-      loadUserDataInForm();
-      showModal(profileModal);
+    profileBtn.addEventListener('click', async () => {
+    await loadUserData(); // <-- Actualiza los datos del usuario
+    loadUserDataInForm();
+    showModal(profileModal);
+    console.log('Datos del usuario cargados en el formulario:', userData);
     });
 
     profileCancelBtn?.addEventListener('click', () => {
@@ -586,7 +598,7 @@ function initRegister() {
   const form = document.getElementById('registerForm');
   const userInput = document.getElementById('username');
   const lastnameInput = document.getElementById('lastname');
-  const birthdateInput = document.getElementById('brithdate');
+  const birthdateInput = document.getElementById('birthdate');
   const emailInput = document.getElementById('email');
   const passInput = document.getElementById('password');
   const confirmPassInput = document.getElementById('confirmPassword');
