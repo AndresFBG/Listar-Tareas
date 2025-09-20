@@ -206,7 +206,7 @@ function initBoard() {
   // Función para resetear el formulario de tareas
   function resetTaskForm() {
     form.reset();
-    document.getElementById('taskId').value = '';
+    document.getElementById('taskId').value = task._id;
     currentTaskId = null;
     currentTaskData = null;
     isEditMode = false;
@@ -216,14 +216,14 @@ function initBoard() {
 
   // Función para llenar el formulario con datos de la tarea para editar
   function fillTaskForm(task) {
-    document.getElementById('taskId').value = task.id;
+    document.getElementById('taskId').value = task._id;
     document.getElementById('taskTitle').value = task.title;
     document.getElementById('taskDetails').value = task.details;
     document.getElementById('taskDate').value = task.date;
     document.getElementById('taskTime').value = task.time;
     document.getElementById('taskStatus').value = task.status;
     
-    currentTaskId = task.id;
+    currentTaskId = task._id;
     currentTaskData = { ...task };
     isEditMode = true;
     taskModalTitle.textContent = 'Editar Tarea';
@@ -314,10 +314,7 @@ function initBoard() {
         await deleteTask(currentTaskId);
         
         // Remover la tarea del DOM
-        const taskElement = document.querySelector(`[data-task-id="${currentTaskId}"]`);
-        if (taskElement) {
-          taskElement.remove();
-        }
+        document.querySelector(`[data-task-id="${currentTaskId}"]`)?.remove();
         
         // Verificar si la columna está vacía y mostrar mensaje
         checkEmptyColumns();
@@ -453,15 +450,15 @@ function initBoard() {
   function addTaskToDOM(task) {
     const taskItem = document.createElement('div');
     taskItem.className = 'task-item';
-    taskItem.setAttribute('data-task-id', task.id);
+    taskItem.setAttribute('data-task-id', task._id);
     taskItem.innerHTML = `
       <div class="task-header">
         <div class="task-title">${task.title}</div>
         <div class="task-actions">
-          <button class="task-action-btn task-edit-btn" onclick="editTask('${task.id}')" title="Editar tarea">
+          <button class="task-action-btn task-edit-btn" onclick="editTask('${task._id}')" title="Editar tarea">
             <i class="fas fa-edit"></i>
           </button>
-          <button class="task-action-btn task-delete-btn" onclick="confirmDeleteTask('${task.id}')" title="Eliminar tarea">
+          <button class="task-action-btn task-delete-btn" onclick="confirmDeleteTask('${task._id}')" title="Eliminar tarea">
             <i class="fas fa-trash"></i>
           </button>
         </div>

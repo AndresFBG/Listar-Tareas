@@ -187,7 +187,7 @@ export async function updateTask(taskId, { title, details, date, time, status })
  * }
  */
 export async function deleteTask(taskId) {
-  return http.delete(`/api/v1/tasks/${taskId}`);
+  return http.del(`/api/v1/tasks/${taskId}`);
 }
 
 /**
