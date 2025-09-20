@@ -206,7 +206,7 @@ function initBoard() {
   // Función para resetear el formulario de tareas
   function resetTaskForm() {
     form.reset();
-    document.getElementById('taskId').value = task._id;
+    document.getElementById('taskId').value = '';
     currentTaskId = null;
     currentTaskData = null;
     isEditMode = false;
