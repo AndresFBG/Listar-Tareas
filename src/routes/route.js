@@ -1,4 +1,4 @@
-import { registerUser, loginUser, CreateTask, updateUserProfile, getUserProfile, getUserTasks, updateTask, deleteTask } from '../services/userService.js';
+import { registerUser, loginUser, CreateTask, updateUserProfile, getUserProfile, getUserTasks, updateTask, deleteTask, recoverPassword } from '../services/userService.js';
 
 const app = document.getElementById('app');
 
@@ -668,8 +668,42 @@ function initForgot() {
   const form = document.getElementById('recoverForm');
   const emailInput = document.getElementById('email');
   const msg = document.getElementById('message');
+  const submitBtn = document.getElementById('submitBtn');
+  
+  // Elementos del modal de confirmación
+  const confirmationModal = document.getElementById('confirmationModal');
+  const confirmationOkBtn = document.getElementById('confirmationOkBtn');
 
   if (!form) return;
+
+  // Función para mostrar modal
+  function showModal(modal) {
+    modal.classList.add('show');
+  }
+
+  // Función para ocultar modal
+  function hideModal(modal) {
+    modal.classList.remove('show');
+  }
+
+  // Event listener para el botón OK del modal
+  confirmationOkBtn?.addEventListener('click', () => {
+    hideModal(confirmationModal);
+    // Redirigir al login después de cerrar el modal
+    setTimeout(() => {
+      location.hash = '#/home';
+    }, 300);
+  });
+
+  // Event listener para cerrar modal al hacer clic fuera
+  window.addEventListener('click', (e) => {
+    if (e.target === confirmationModal) {
+      hideModal(confirmationModal);
+      setTimeout(() => {
+        location.hash = '#/home';
+      }, 300);
+    }
+  });
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -678,23 +712,36 @@ function initForgot() {
     const email = emailInput?.value.trim();
 
     if (!email) {
-      msg.textContent = 'Por favor ingresa tu correo electrónico.';
+      msg.innerHTML = '<div class="message-error">Por favor ingresa tu correo electrónico.</div>';
       return;
     }
 
-    form.querySelector('button[type="submit"]').disabled = true;
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      msg.innerHTML = '<div class="message-error">Por favor ingresa un correo electrónico válido.</div>';
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Enviando...';
 
     try {
-      msg.textContent = 'Se ha enviado un enlace para restablecer tu contraseña.';
-      msg.style.color = 'green';
-
-      setTimeout(() => (location.hash = '#/home'), 2000);
+      // Hacer la petición real al backend para recuperación de contraseña
+      await recoverPassword({ email });
+      
+      // Mostrar el modal de confirmación
+      showModal(confirmationModal);
+      
+      // Limpiar el formulario
+      form.reset();
+      msg.textContent = '';
 
     } catch (err) {
-      msg.textContent = `No se pudo recuperar la contraseña: ${err.message}`;
-      msg.style.color = 'red';
+      msg.innerHTML = `<div class="message-error">Ha ocurrido un error. Por favor, inténtalo de nuevo más tarde.</div>`;
     } finally {
-      form.querySelector('button[type="submit"]').disabled = false;
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Enviar Enlace';
     }
   });
 }
