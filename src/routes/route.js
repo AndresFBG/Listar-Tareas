@@ -133,14 +133,7 @@ async function loadUserData() {
     const token = localStorage.getItem('token');
     if (token) {
       const userProfile = await getUserProfile();
-      console.log('Datos recibidos del backend:', userProfile);
-      userData = {
-        name: userProfile.Name || '',
-        lastname: userProfile.Lastname || '',
-        email: userProfile.Email || '',
-        birthdate: userProfile.Birthdate || '',
-        bio: userProfile.Bio || ''
-      };
+      userData = { ...userData, ...userProfile };
     }
   } catch (error) {
     console.error('Error loading user data:', error);
@@ -215,17 +208,24 @@ function initBoard() {
 
   // Función para resetear el formulario de tareas
   function resetTaskForm() {
-    form.reset();
-    document.getElementById('taskId').value = '';
-    currentTaskId = null;
-    currentTaskData = null;
-    isEditMode = false;
-    taskModalTitle.textContent = 'Crear Tarea';
-    saveTaskBtn.textContent = 'Guardar';
+  form.reset();
+  document.getElementById('taskId').value = '';
+  currentTaskId = null;
+  currentTaskData = null;
+  isEditMode = false;
+
+  const taskModalTitle = document.getElementById('taskModalTitle');
+  const saveTaskBtn = document.querySelector('.btn-save');
+  if (taskModalTitle) taskModalTitle.textContent = 'Crear Tarea';
+  if (saveTaskBtn) saveTaskBtn.textContent = 'Guardar';
   }
 
   // Función para llenar el formulario con datos de la tarea para editar
   function fillTaskForm(task) {
+   
+    const taskModalTitle = document.getElementById('taskModalTitle');
+    const saveTaskBtn = document.querySelector('.btn-save');
+    const taskId = document.getElementById('taskId').value;
     document.getElementById('taskId').value = task.id;
     document.getElementById('taskTitle').value = task.title;
     document.getElementById('taskDetails').value = task.details;
@@ -236,8 +236,8 @@ function initBoard() {
     currentTaskId = task.id;
     currentTaskData = { ...task };
     isEditMode = true;
-    taskModalTitle.textContent = 'Editar Tarea';
-    saveTaskBtn.textContent = 'Actualizar';
+    if (taskModalTitle) taskModalTitle.textContent = 'Editar Tarea';
+    if (saveTaskBtn) saveTaskBtn.textContent = 'Actualizar';
   }
 
   // Event listeners para el modal de perfil
@@ -246,7 +246,7 @@ function initBoard() {
     await loadUserData(); // <-- Actualiza los datos del usuario
     loadUserDataInForm();
     showModal(profileModal);
-    console.log('Datos del usuario cargados en el formulario:', userData);
+    console.log
     });
 
     profileCancelBtn?.addEventListener('click', () => {
@@ -530,6 +530,7 @@ function initBoard() {
         time: taskElement.querySelector('.task-date').textContent.split(' ')[1],
         status: getTaskStatus(taskElement)
       };
+      
       
       fillTaskForm(taskData);
       showModal(taskModal);
