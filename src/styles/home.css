@@ -406,9 +406,9 @@ body {
     background: rgba(37, 99, 235, 0.1);
 }
 
-/*.fas.fa-edit {
+.fas.fa-edit {
     font-size: 16px;
-}*/
+}
 
 /* ----------------------------------------- */
 /* Estilos específicos para la página de Login */
@@ -502,6 +502,71 @@ body {
     flex-shrink: 0;
 }
 
+/* Estilos para el contenedor de icono en forgot */
+.icon-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.icon-container img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+}
+
+/* Estilos para mensajes en el formulario de recuperación */
+.message-container {
+    margin-bottom: 15px;
+    min-height: 20px;
+}
+
+.message-success {
+    color: #059669;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.message-error {
+    color: #dc2626;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* Estilos específicos para el modal de confirmación de recuperación */
+.confirmation-modal {
+    max-width: 480px;
+    text-align: center;
+}
+
+.confirmation-icon {
+    font-size: 4rem;
+    color: #059669;
+    margin-bottom: 20px;
+}
+
+.confirmation-message {
+    color: #374151;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    font-size: 0.95rem;
+}
+
+.modal-buttons .btn-save {
+    width: 100%;
+    padding: 12px 20px;
+}
+
 /* Estilo para el botón de cerrar modal */
 .btn-close {
     background-color: #f44336;
@@ -563,6 +628,13 @@ button:hover {
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
+button:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
 a {
     color: #007AFF;
     text-decoration: none;
@@ -608,7 +680,7 @@ a:hover {
     }
     
     .task-actions {
-        opacity: 1; /* Siempre visible en móviles */
+        opacity: 1; 
     }
     
     .task-action-btn {
@@ -643,6 +715,10 @@ a:hover {
 
     .task-header {
         align-items: center;
+    }
+
+    .confirmation-icon {
+        font-size: 3rem;
     }
 }
 
@@ -682,6 +758,14 @@ a:hover {
         width: 28px;
         height: 28px;
         font-size: 0.85rem;
+    }
+
+    .confirmation-icon {
+        font-size: 2.5rem;
+    }
+
+    .confirmation-message {
+        font-size: 0.9rem;
     }
 }
 

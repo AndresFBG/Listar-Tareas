@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recuperar Contraseña</title>
-    <link rel="stylesheet" href="forgot.css">
+    <title>Recuperar contraseña</title>
+    <link rel="stylesheet" href="home.css">
 </head>
 <body>
     <div class="container-forgot">
         <div class="form-container">
-            <h1>Restablecer contraseña</h1>
+            <h1>Recuperar contraseña</h1>
             <p>Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña</p>
             
             <form id="recoverForm">
-
                 <!-- Imagen del candado -->
                 <div class="icon-container">
                     <img src="padlock.png" alt="candado">
@@ -22,12 +21,31 @@
                 <!-- Campo para el correo electrónico -->
                 <input type="email" id="email" placeholder="Correo electrónico" required>
                 
+                <!-- Contenedor para mensajes -->
+                <div id="message" class="message-container"></div>
+                
                 <!-- Botón para enviar enlace de recuperación -->
-                <button type="submit">Enviar enlace</button> 
-                <br>
+                <button type="submit" id="submitBtn">Enviar enlace</button><br>
+                <br>                
                 <!-- Enlace para redirigir al login -->
-                <br><p>¿Ya tienes una cuenta? <a href="#/home">Acceder</a></p> 
+                <p>¿Ya tienes una cuenta? <a href="#/home">Acceder</a></p>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación -->
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content confirmation-modal">
+            <div class="modal-header">Enlace enviado</div>
+            <div class="confirmation-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <p class="confirmation-message">
+                Si existe una cuenta que coincide con los detalles facilitados enviaremos un enlace para restablecer la contraseña. Por favor, revisa tu bandeja de entrada.
+            </p>
+            <div class="modal-buttons">
+                <button type="button" class="btn-save" id="confirmationOkBtn">Entendido</button>
+            </div>
         </div>
     </div>
 
