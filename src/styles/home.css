@@ -41,6 +41,7 @@ body {
 }
 
 .header button {
+    
     background: #2563eb;
     color: white;
     border: none;
@@ -52,6 +53,54 @@ body {
     transition: background 0.3s ease;
 }
 
+.profile-btn {
+    background: #059669;
+    position: fixed;  /* Fija el botón en la pantalla */
+    top: 20px;  /* Mueve el botón 20px desde la parte superior */
+    right: 170px; /* Mueve el botón 20px desde el borde derecho */
+    width: 100px;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 16px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.us-btn {
+    background: #059669;
+    position: fixed;  /* Fija el botón en la pantalla */
+    top: 33px;  /* Mueve el botón 20px desde la parte superior */
+    right: 180px; /* Mueve el botón 20px desde el borde derecho */
+    width: 100px;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 16px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.logout-btn {
+    background: #059669;
+    position: fixed;  /* Fija el botón en la pantalla */
+    top: 20.5px;  /* Mueve el botón 20px desde la parte superior */
+    right: 300px; /* Mueve el botón 20px desde el borde derecho */
+    width: 150px;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 16px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    
+}
 .header button:hover {
     background: #1d4ed8;
 }
@@ -157,30 +206,36 @@ body {
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
-    justify-content: cente    .loader-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(255,255,255,0.85);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-    }
-    
-    .loader-content {
-      text-align: center;
-      color: #2563eb;
-    }
-    
-    .loader-content p {
-      margin-top: 16px;
-      font-size: 1.1rem;
-      color: #111827;
-    }r;
+    justify-content: center; /* Corregido */
+}
+
+.loader-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255, 255, 255, 0.85);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loader-content {
+    text-align: center;
+    color: #2563eb;
+}
+
+.loader-content p {
+    margin-top: 16px;
+    font-size: 1.1rem;
+    color: #111827;
+}
+
+.loader-content .loader { /* Asegúrate de que el loader tenga la clase correcta */
     width: 28px;
     height: 28px;
 }
+
 
 .task-edit-btn {
     color: #2563eb;
@@ -769,3 +824,203 @@ a:hover {
     }
 }
 
+
+/* Estilos Globales */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Estilos generales de la página */
+/* Estilos Globales */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Estilos generales de la página */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    padding: 20px;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Títulos principales */
+h2 {
+    font-size: 2.5em;
+    color: #010806;
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Sección de Misión, Visión y Sobre Nosotros */
+.about-section {
+    margin-bottom: 50px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.about-section h2 {
+    font-size: 2em;
+    color: #000000;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.about-section p {
+    font-size: 1.1em;
+    line-height: 1.7;
+    color: #555;
+    margin-bottom: 20px;
+    text-align: justify;
+    padding: 0 15px;
+}
+
+/* Sección de "Sobre Nosotros" */
+.about-us {
+    margin-top: 50px;
+}
+
+.about-us h2 {
+    margin-bottom: 30px;
+    font-size: 2em;
+    color: #000000;
+}
+
+/* Contenedor de los miembros del equipo */
+.team-members {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+/* Tarjetas de los miembros del equipo */
+.team-member {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    width: 280px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.team-member:hover {
+    transform: translateY(-10px); /* Efecto de elevación al pasar el ratón */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.team-member img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin-bottom: 15px;
+    object-fit: cover;
+}
+
+.team-member h3 {
+    font-size: 1.3em;
+    color: #000101;
+    margin-bottom: 10px;
+}
+
+.team-member p {
+    font-size: 1em;
+    color: #666;
+}
+
+/* Botón "Volver al Board" */
+.back-button {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.back-button .btn {
+    background-color: #059669;
+    color: white;
+    padding: 12px 25px;
+    font-size: 1.1em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.back-button .btn:hover {
+    background-color: #046f50;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+    .team-member {
+        width: 45%;
+    }
+}
+
+@media (max-width: 480px) {
+    .team-member {
+        width: 90%;
+    }
+}
+
+
+
+/* Estilo del contenedor del menú desplegable */
+.dropdown {
+  position: absolute;
+  display: inline-block;
+  top: 40px;
+  right: 90Px;
+}
+
+/* Estilo de la imagen de perfil */
+.profile-img {
+  width: 40px; /* Tamaño de la imagen */
+  height: 40px; /* Tamaño de la imagen */
+  border-radius: 50%; /* Hacer la imagen circular */
+  cursor: pointer;
+}
+
+/* Estilo del menú desplegable (oculto por defecto) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 140px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  border-radius: 5px;
+  padding: 10px 0;
+  right:0%;
+
+  
+}
+
+
+/* Estilo de los elementos dentro del menú */
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  
+}
+
+/* Cambiar el color al pasar el ratón por encima */
+.dropdown-content a:hover {
+  background-color: #007AFF;
+}
+
+/* Mostrar el menú cuando se hace clic en la imagen */
+.dropdown:hover .dropdown-content {
+  display: block;
+ 
+}

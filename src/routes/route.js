@@ -1,14 +1,24 @@
-import { registerUser, loginUser, CreateTask, updateUserProfile, getUserProfile, getUserTasks, updateTask, deleteTask } from '../services/userService.js';
+import {
+  registerUser,
+  loginUser,
+  CreateTask,
+  updateUserProfile,
+  getUserProfile,
+  getUserTasks,
+  updateTask,
+  deleteTask,
+  recoverPassword,
+} from "../services/userService.js";
 
-const app = document.getElementById('app');
+const app = document.getElementById("app");
 
 // Datos del usuario en memoria (se cargará desde el servidor)
 let userData = {
-  name: '',
-  lastname: '',
-  email: '',
-  birthdate: '',
-  bio: ''
+  name: "",
+  lastname: "",
+  email: "",
+  birthdate: "",
+  bio: "",
 };
 
 // Variables para manejo de tareas
@@ -38,10 +48,11 @@ async function loadView(name) {
   const html = await res.text();
   app.innerHTML = html;
 
-  if (name === 'home') initHome();
-  if (name === 'board') initBoard();
-  if (name === 'register') initRegister();
-  if (name === 'forgot') initForgot();
+  if (name === "home") initHome();
+  if (name === "board") initBoard();
+  if (name === "register") initRegister();
+  if (name === "forgot") initForgot();
+  if (name === "aboutUs") initAbout();
 }
 
 /**
@@ -53,7 +64,7 @@ async function loadView(name) {
  * @returns {void}
  */
 export function initRouter() {
-  window.addEventListener('hashchange', handleRoute);
+  window.addEventListener("hashchange", handleRoute);
   handleRoute(); // initial render
 }
 
@@ -65,11 +76,12 @@ export function initRouter() {
  * @returns {void}
  */
 function handleRoute() {
-  const path = (location.hash.startsWith('#/') ? location.hash.slice(2) : '') || 'home';
-  const known = ['home', 'board', 'register', 'forgot'];
-  const route = known.includes(path) ? path : 'home';
+  const path =
+    (location.hash.startsWith("#/") ? location.hash.slice(2) : "") || "home";
+  const known = ["home", "board", "register", "forgot", "about-us"];
+  const route = known.includes(path) ? path : "home";
 
-  loadView(route).catch(err => {
+  loadView(route).catch((err) => {
     console.error(err);
     app.innerHTML = `<p style="color:#ffb4b4">Error loading the view.</p>`;
   });
@@ -84,22 +96,22 @@ function handleRoute() {
  * @returns {void}
  */
 function initHome() {
-  const form = document.getElementById('loginForm');
-  const emailInput = document.getElementById('email');
-  const passInput = document.getElementById('password');
-  const msg = document.getElementById('loginMsg');
+  const form = document.getElementById("loginForm");
+  const emailInput = document.getElementById("email");
+  const passInput = document.getElementById("password");
+  const msg = document.getElementById("loginMsg");
 
   if (!form) return;
 
-  form.addEventListener('submit', async (e) => {
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    msg.textContent = '';
+    msg.textContent = "";
 
     const email = emailInput?.value.trim();
     const password = passInput?.value.trim();
 
     if (!email || !password) {
-      msg.textContent = 'Por favor completa correo electrónico y contraseña.';
+      msg.textContent = "Por favor completa correo electrónico y contraseña.";
       return;
     }
 
@@ -109,17 +121,16 @@ function initHome() {
       const data = await loginUser({ email, password });
 
       // Guardar token en localStorage
-      localStorage.setItem('token', data.token);
+      localStorage.setItem("token", data.token);
 
       // Cargar datos del usuario
       await loadUserData();
 
       // Redirigir al tablero
-      location.hash = '#/board';
+      location.hash = "#/board";
     } catch (err) {
       if (msg) msg.textContent = `Error al iniciar sesión: ${err.message}`;
-    }
-    finally {
+    } finally {
       form.querySelector('button[type="submit"]').disabled = false;
     }
   });
@@ -130,13 +141,13 @@ function initHome() {
  */
 async function loadUserData() {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (token) {
       const userProfile = await getUserProfile();
       userData = { ...userData, ...userProfile };
     }
   } catch (error) {
-    console.error('Error loading user data:', error);
+    console.error("Error loading user data:", error);
   }
 }
 
@@ -148,127 +159,139 @@ async function loadUserData() {
  * @function initBoard
  * @returns {void}
  */
-
 function initBoard() {
-  const form = document.getElementById('taskForm');
-  const taskModal = document.getElementById('taskModal');
-  const taskModalTitle = document.getElementById('taskModalTitle');
-  const saveTaskBtn = document.getElementById('saveTaskBtn');
-  const cancelBtn = document.getElementById('cancelBtn');
-  const newTaskBtn = document.getElementById('newTaskBtn');
-  const logoutBtn = document.getElementById('logoutBtn');
+  const form = document.getElementById("taskForm");
+  const taskModal = document.getElementById("taskModal");
+  const taskModalTitle = document.getElementById("taskModalTitle");
+  const saveTaskBtn = document.getElementById("saveTaskBtn");
+  const cancelBtn = document.getElementById("cancelBtn");
+  const newTaskBtn = document.getElementById("newTaskBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
 
   // Elementos del modal de perfil
-  const profileBtn = document.getElementById('profileBtn');
-  const profileModal = document.getElementById('profileModal');
-  const profileForm = document.getElementById('profileForm');
-  const profileCancelBtn = document.getElementById('profileCancelBtn');
-  const successMessage = document.getElementById('successMessage');
-  const userAvatar = document.getElementById('userAvatar');
+  const profileLink = document.getElementById("profileLink");
+  const profileModal = document.getElementById("profileModal");
+  const profileForm = document.getElementById("profileForm");
+  const profileCancelBtn = document.getElementById("profileCancelBtn");
+  const successMessage = document.getElementById("successMessage");
+
+  //Boton De nosotros
+  const usButton = document.getElementById('usBtn');
+  const backButton = document.getElementById('backButton');
 
   // Elementos del modal de eliminación
-  const deleteModal = document.getElementById('deleteModal');
-  const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-  const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+  const deleteModal = document.getElementById("deleteModal");
+  const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+  const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
 
   // Función para actualizar el avatar con las iniciales del usuario
   function updateAvatar() {
     if (userData.name && userData.lastname) {
-      const initials = (userData.name.charAt(0) + userData.lastname.charAt(0)).toUpperCase();
+      const initials = (
+        userData.name.charAt(0) + userData.lastname.charAt(0)
+      ).toUpperCase();
       userAvatar.textContent = initials;
     } else {
-      userAvatar.textContent = 'U';
+      userAvatar.textContent = "U";
     }
   }
 
   // Función para cargar datos del usuario en el formulario de perfil
   function loadUserDataInForm() {
-
-    document.getElementById('profileName').value = userData.name || '';
-    document.getElementById('profileLastname').value = userData.lastname || '';
-    document.getElementById('profileEmail').value = userData.email || '';
-    document.getElementById('profileBirthdate').value = userData.birthdate || '';
-    document.getElementById('profileBio').value = userData.bio || '';
+    document.getElementById("profileName").value = userData.name || "";
+    document.getElementById("profileLastname").value = userData.lastname || "";
+    document.getElementById("profileEmail").value = userData.email || "";
+    document.getElementById("profileBirthdate").value =
+      userData.birthdate || "";
+    document.getElementById("profileBio").value = userData.bio || "";
     updateAvatar();
   }
 
+  if (usButton) {
+    usButton.addEventListener("click", () => {
+      location.hash = "#/about-us"; // Cambia la URL a la vista "Sobre Nosotros"
+    });
+  }
+
+  // Event listener para el botón "Volver al Board"
+  if (backButton) backButton.addEventListener('click', () => {
+    location.hash = '#/board';  // Cambia la URL de vuelta a la vista "Board"
+  });
   
   // Función para mostrar modal
   function showModal(modal) {
-    modal.classList.add('show');
+    modal.classList.add("show");
   }
 
   // Función para ocultar modal
   function hideModal(modal) {
-    modal.classList.remove('show');
+    modal.classList.remove("show");
     if (modal === profileModal && successMessage) {
-      successMessage.style.display = 'none';
+      successMessage.style.display = "none";
     }
   }
 
   // Función para resetear el formulario de tareas
   function resetTaskForm() {
-  form.reset();
-  document.getElementById('taskId').value = '';
-  currentTaskId = null;
-  currentTaskData = null;
-  isEditMode = false;
-
-  const taskModalTitle = document.getElementById('taskModalTitle');
-  const saveTaskBtn = document.querySelector('.btn-save');
-  if (taskModalTitle) taskModalTitle.textContent = 'Crear Tarea';
-  if (saveTaskBtn) saveTaskBtn.textContent = 'Guardar';
+    form.reset();
+    document.getElementById("taskId").value = "";
+    currentTaskId = null;
+    currentTaskData = null;
+    isEditMode = false;
+    taskModalTitle.textContent = "Crear Tarea";
+    saveTaskBtn.textContent = "Guardar";
   }
 
   // Función para llenar el formulario con datos de la tarea para editar
   function fillTaskForm(task) {
-   
-    const taskModalTitle = document.getElementById('taskModalTitle');
-    const saveTaskBtn = document.querySelector('.btn-save');
-    const taskId = document.getElementById('taskId').value;
-    document.getElementById('taskId').value = task.id;
-    document.getElementById('taskTitle').value = task.title;
-    document.getElementById('taskDetails').value = task.details;
-    document.getElementById('taskDate').value = task.date;
-    document.getElementById('taskTime').value = task.time;
-    document.getElementById('taskStatus').value = task.status;
-    
-    currentTaskId = task.id;
+    document.getElementById("taskId").value = task._id;
+    document.getElementById("taskTitle").value = task.title;
+    document.getElementById("taskDetails").value = task.details;
+    document.getElementById("taskDate").value = task.date;
+    document.getElementById("taskTime").value = task.time;
+    document.getElementById("taskStatus").value = task.status;
+
+    currentTaskId = task._id;
     currentTaskData = { ...task };
     isEditMode = true;
-    if (taskModalTitle) taskModalTitle.textContent = 'Editar Tarea';
-    if (saveTaskBtn) saveTaskBtn.textContent = 'Actualizar';
+    taskModalTitle.textContent = "Editar Tarea";
+    saveTaskBtn.textContent = "Actualizar";
   }
 
-  // Event listeners para el modal de perfil
-  if (profileBtn && profileModal) {
-    profileBtn.addEventListener('click', async () => {
-    await loadUserData(); // <-- Actualiza los datos del usuario
-    loadUserDataInForm();
-    showModal(profileModal);
-    console.log
+  /// Este es el evento para abrir el modal de perfil
+  if (profileLink && profileModal) {
+    profileLink.addEventListener("click", (e) => {
+      e.preventDefault(); // Evita la navegación predeterminada del enlace
+      showModal(profileModal); // Muestra el modal de perfil
+      dropdownMenu.style.display = "none"; // Oculta el menú desplegable después de hacer clic
+      loadUserDataInForm(); // Carga los datos del usuario en el formulario de perfil
     });
+  }
 
-    profileCancelBtn?.addEventListener('click', () => {
+  // Función para ocultar el modal de perfil
+  if (profileCancelBtn) {
+    profileCancelBtn.addEventListener("click", () => {
       hideModal(profileModal);
     });
+  }
 
-    // Event listener para el formulario de perfil
-    profileForm?.addEventListener('submit', async (e) => {
+  // Lógica del formulario de perfil
+  if (profileForm) {
+    profileForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const formData = {
-        name: document.getElementById('profileName').value,
-        lastname: document.getElementById('profileLastname').value,
-        email: document.getElementById('profileEmail').value,
-        birthdate: document.getElementById('profileBirthdate').value,
-        bio: document.getElementById('profileBio').value
+        name: document.getElementById("profileName").value,
+        lastname: document.getElementById("profileLastname").value,
+        email: document.getElementById("profileEmail").value,
+        birthdate: document.getElementById("profileBirthdate").value,
+        bio: document.getElementById("profileBio").value,
       };
 
       try {
-        const saveBtn = profileForm.querySelector('.btn-save');
+        const saveBtn = profileForm.querySelector(".btn-save");
         const originalText = saveBtn.textContent;
-        saveBtn.textContent = 'Guardando...';
+        saveBtn.textContent = "Guardando...";
         saveBtn.disabled = true;
 
         // Llamar al servicio para actualizar el perfil
@@ -278,85 +301,91 @@ function initBoard() {
         userData = { ...userData, ...formData };
         updateAvatar();
 
-        console.log('Datos del usuario actualizados:', userData);
-
         // Mostrar mensaje de éxito
         if (successMessage) {
-          successMessage.style.display = 'block';
+          successMessage.style.display = "block";
           setTimeout(() => {
-            successMessage.style.display = 'none';
+            successMessage.style.display = "none";
           }, 3000);
         }
 
         saveBtn.textContent = originalText;
         saveBtn.disabled = false;
-
       } catch (error) {
-        console.error('Error al actualizar perfil:', error);
-        alert('Error al actualizar el perfil. Por favor, intenta de nuevo.');
+        console.error("Error al actualizar perfil:", error);
+        alert("Error al actualizar el perfil. Por favor, intenta de nuevo.");
 
-        const saveBtn = profileForm.querySelector('.btn-save');
-        saveBtn.textContent = 'Guardar Cambios';
+        const saveBtn = profileForm.querySelector(".btn-save");
+        saveBtn.textContent = "Guardar Cambios";
         saveBtn.disabled = false;
       }
     });
   }
 
+  // Funciones auxiliares para mostrar y ocultar el modal
+  function showModal(modal) {
+    modal.classList.add("show");
+  }
+
+  function hideModal(modal) {
+    modal.classList.remove("show");
+    if (modal === profileModal && successMessage) {
+      successMessage.style.display = "none";
+    }
+  }
+
   // Event listeners para tareas
-  newTaskBtn?.addEventListener('click', () => {
+  newTaskBtn?.addEventListener("click", () => {
     resetTaskForm();
     showModal(taskModal);
   });
 
-  cancelBtn?.addEventListener('click', () => {
+  cancelBtn?.addEventListener("click", () => {
     resetTaskForm();
     hideModal(taskModal);
   });
 
   // Event listener para el modal de eliminación
-  cancelDeleteBtn?.addEventListener('click', () => {
+  cancelDeleteBtn?.addEventListener("click", () => {
     hideModal(deleteModal);
     currentTaskId = null;
     currentTaskData = null;
   });
 
-  confirmDeleteBtn?.addEventListener('click', async () => {
+  confirmDeleteBtn?.addEventListener("click", async () => {
     if (currentTaskId) {
       try {
         await deleteTask(currentTaskId);
-        
+
         // Remover la tarea del DOM
-        const taskElement = document.querySelector(`[data-task-id="${currentTaskId}"]`);
-        if (taskElement) {
-          taskElement.remove();
-        }
-        
+        document.querySelector(`[data-task-id="${currentTaskId}"]`)?.remove();
+
         // Verificar si la columna está vacía y mostrar mensaje
         checkEmptyColumns();
-        
+
         hideModal(deleteModal);
         currentTaskId = null;
         currentTaskData = null;
-        
-        console.log('Tarea eliminada exitosamente');
+
+        console.log("Tarea eliminada exitosamente");
       } catch (error) {
-        console.error('Error al eliminar la tarea:', error);
-        alert('Error al eliminar la tarea. Por favor, intenta de nuevo.');
+        console.error("Error al eliminar la tarea:", error);
+        alert("Error al eliminar la tarea. Por favor, intenta de nuevo.");
       }
     }
   });
 
   // Event listener para el formulario de tareas
-  form?.addEventListener('submit', async (e) => {
+  form?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const title = document.getElementById('taskTitle').value;
-    const details = document.getElementById('taskDetails').value;
-    const date = document.getElementById('taskDate').value;
-    const time = document.getElementById('taskTime').value;
-    const status = document.getElementById('taskStatus').value;
+    const title = document.getElementById("taskTitle").value;
+    const details = document.getElementById("taskDetails").value;
+    const date = document.getElementById("taskDate").value;
+    const time = document.getElementById("taskTime").value;
+    const status = document.getElementById("taskStatus").value;
 
     if (!title || !details || !date || !time || !status) {
-      alert('Por favor completa todos los campos.');
+      alert("Por favor completa todos los campos.");
       return;
     }
 
@@ -364,14 +393,14 @@ function initBoard() {
     const statusMap = {
       todo: "Por Hacer",
       doing: "Haciendo",
-      done: "Hecho"
+      done: "Hecho",
     };
 
     // Mapeo back → front
     const reverseStatusMap = {
       "Por Hacer": "todo",
       Haciendo: "doing",
-      Hecho: "done"
+      Hecho: "done",
     };
 
     // Datos para el backend
@@ -380,13 +409,13 @@ function initBoard() {
       details,
       date,
       time,
-      status: statusMap[status] || status
+      status: statusMap[status] || status,
     };
 
     try {
-      const saveBtn = form.querySelector('.btn-save');
+      const saveBtn = form.querySelector(".btn-save");
       const originalText = saveBtn.textContent;
-      saveBtn.textContent = isEditMode ? 'Actualizando...' : 'Guardando...';
+      saveBtn.textContent = isEditMode ? "Actualizando..." : "Guardando...";
       saveBtn.disabled = true;
 
       let taskResult;
@@ -394,33 +423,35 @@ function initBoard() {
       if (isEditMode && currentTaskId) {
         // Actualizar tarea existente
         taskResult = await updateTask(currentTaskId, backendTaskData);
-        
+
         // Remover la tarea antigua del DOM si cambió de columna
-        const oldTaskElement = document.querySelector(`[data-task-id="${currentTaskId}"]`);
+        const oldTaskElement = document.querySelector(
+          `[data-task-id="${currentTaskId}"]`
+        );
         if (oldTaskElement) {
           oldTaskElement.remove();
         }
-        
+
         // Agregar la tarea actualizada
         const frontendTask = {
           ...taskResult,
           id: currentTaskId,
-          status: reverseStatusMap[taskResult.status] || status
+          status: reverseStatusMap[taskResult.status] || status,
         };
-        
+
         addTaskToDOM(frontendTask);
-        console.log('Tarea actualizada exitosamente');
+        console.log("Tarea actualizada exitosamente");
       } else {
         // Crear nueva tarea
         taskResult = await CreateTask(backendTaskData);
-        
+
         const frontendTask = {
           ...taskResult,
-          status: reverseStatusMap[taskResult.status] || status
+          status: reverseStatusMap[taskResult.status] || status,
         };
-        
+
         addTaskToDOM(frontendTask);
-        console.log('Nueva tarea creada exitosamente');
+        console.log("Nueva tarea creada exitosamente");
       }
 
       // Verificar columnas vacías
@@ -428,33 +459,32 @@ function initBoard() {
 
       hideModal(taskModal);
       resetTaskForm();
-      
+
       saveBtn.textContent = originalText;
       saveBtn.disabled = false;
-
     } catch (error) {
-      console.error('Error al guardar la tarea:', error);
-      alert('Error al guardar la tarea. Por favor, intenta de nuevo.');
-      
-      const saveBtn = form.querySelector('.btn-save');
-      saveBtn.textContent = isEditMode ? 'Actualizar' : 'Guardar';
+      console.error("Error al guardar la tarea:", error);
+      alert("Error al guardar la tarea. Por favor, intenta de nuevo.");
+
+      const saveBtn = form.querySelector(".btn-save");
+      saveBtn.textContent = isEditMode ? "Actualizar" : "Guardar";
       saveBtn.disabled = false;
     }
   });
 
   // Función para verificar columnas vacías
   function checkEmptyColumns() {
-    ['todo', 'doing', 'done'].forEach(status => {
+    ["todo", "doing", "done"].forEach((status) => {
       const taskList = document.getElementById(`${status}-tasks`);
       if (taskList && taskList.children.length === 0) {
         const emptyStateMessages = {
-          todo: 'No hay tareas pendientes',
-          doing: 'No hay tareas en progreso',
-          done: 'No hay tareas completadas'
+          todo: "No hay tareas pendientes",
+          doing: "No hay tareas en progreso",
+          done: "No hay tareas completadas",
         };
-        
-        const emptyState = document.createElement('div');
-        emptyState.className = 'empty-state';
+
+        const emptyState = document.createElement("div");
+        emptyState.className = "empty-state";
         emptyState.textContent = emptyStateMessages[status];
         taskList.appendChild(emptyState);
       }
@@ -463,17 +493,17 @@ function initBoard() {
 
   // Función para agregar la tarea al DOM
   function addTaskToDOM(task) {
-    const taskItem = document.createElement('div');
-    taskItem.className = 'task-item';
-    taskItem.setAttribute('data-task-id', task.id);
+    const taskItem = document.createElement("div");
+    taskItem.className = "task-item";
+    taskItem.setAttribute("data-task-id", task._id);
     taskItem.innerHTML = `
       <div class="task-header">
         <div class="task-title">${task.title}</div>
         <div class="task-actions">
-          <button class="task-action-btn task-edit-btn" onclick="editTask('${task.id}')" title="Editar tarea">
+          <button class="task-action-btn task-edit-btn" onclick="editTask('${task._id}')" title="Editar tarea">
             <i class="fas fa-edit"></i>
           </button>
-          <button class="task-action-btn task-delete-btn" onclick="confirmDeleteTask('${task.id}')" title="Eliminar tarea">
+          <button class="task-action-btn task-delete-btn" onclick="confirmDeleteTask('${task._id}')" title="Eliminar tarea">
             <i class="fas fa-trash"></i>
           </button>
         </div>
@@ -485,7 +515,7 @@ function initBoard() {
     const taskList = document.getElementById(`${task.status}-tasks`);
     if (taskList) {
       // Remover el estado vacío si existe
-      const emptyState = taskList.querySelector('.empty-state');
+      const emptyState = taskList.querySelector(".empty-state");
       if (emptyState) {
         emptyState.remove();
       }
@@ -497,53 +527,52 @@ function initBoard() {
   async function loadTasksFromDatabase() {
     try {
       const tasks = await getUserTasks();
-      
+
       // Mapeo back → front para mostrar tareas
       const reverseStatusMap = {
         "Por Hacer": "todo",
         Haciendo: "doing",
-        Hecho: "done"
+        Hecho: "done",
       };
 
-      tasks.forEach(task => {
+      tasks.forEach((task) => {
         const frontendTask = {
           ...task,
-          status: reverseStatusMap[task.status] || task.status
+          status: reverseStatusMap[task.status] || task.status,
         };
         addTaskToDOM(frontendTask);
       });
     } catch (err) {
-      console.error('Error al cargar tareas:', err);
+      console.error("Error al cargar tareas:", err);
     }
   }
 
   // Funciones globales para los botones de acción (necesarias para onclick)
-  window.editTask = function(taskId) {
+  window.editTask = function (taskId) {
     // Encontrar la tarea en el DOM para obtener sus datos
     const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
     if (taskElement) {
       const taskData = {
-        id: taskId,
-        title: taskElement.querySelector('.task-title').textContent,
-        details: taskElement.querySelector('.task-details').textContent,
-        date: taskElement.querySelector('.task-date').textContent.split(' ')[0],
-        time: taskElement.querySelector('.task-date').textContent.split(' ')[1],
-        status: getTaskStatus(taskElement)
+        _id: taskId,
+        title: taskElement.querySelector(".task-title").textContent,
+        details: taskElement.querySelector(".task-details").textContent,
+        date: taskElement.querySelector(".task-date").textContent.split(" ")[0],
+        time: taskElement.querySelector(".task-date").textContent.split(" ")[1],
+        status: getTaskStatus(taskElement),
       };
-      
-      
+
       fillTaskForm(taskData);
       showModal(taskModal);
     }
   };
 
-  window.confirmDeleteTask = function(taskId) {
+  window.confirmDeleteTask = function (taskId) {
     currentTaskId = taskId;
     const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
     if (taskElement) {
       currentTaskData = {
-        id: taskId,
-        title: taskElement.querySelector('.task-title').textContent
+        _id: taskId,
+        title: taskElement.querySelector(".task-title").textContent,
       };
     }
     showModal(deleteModal);
@@ -552,14 +581,14 @@ function initBoard() {
   // Función auxiliar para obtener el estado de la tarea basado en su contenedor
   function getTaskStatus(taskElement) {
     const parent = taskElement.parentElement;
-    if (parent.id === 'todo-tasks') return 'todo';
-    if (parent.id === 'doing-tasks') return 'doing';
-    if (parent.id === 'done-tasks') return 'done';
-    return 'todo';
+    if (parent.id === "todo-tasks") return "todo";
+    if (parent.id === "doing-tasks") return "doing";
+    if (parent.id === "done-tasks") return "done";
+    return "todo";
   }
 
   // Cerrar modales al hacer clic fuera
-  window.addEventListener('click', (e) => {
+  window.addEventListener("click", (e) => {
     if (e.target === profileModal) {
       hideModal(profileModal);
     }
@@ -579,11 +608,11 @@ function initBoard() {
   updateAvatar();
 
   // Función de cerrar sesión
-  logoutBtn?.addEventListener('click', () => {
-    if (confirm('¿Estás seguro que deseas cerrar sesión?')) {
+  logoutBtn?.addEventListener("click", () => {
+    if (confirm("¿Estás seguro que deseas cerrar sesión?")) {
       localStorage.clear();
-      userData = { name: '', lastname: '', email: '', birthdate: '', bio: '' };
-      location.hash = '#/home';
+      userData = { name: "", lastname: "", email: "", birthdate: "", bio: "" };
+      location.hash = "#/home";
     }
   });
 }
@@ -596,23 +625,30 @@ function initBoard() {
  * @returns {void}
  */
 function initRegister() {
-  const form = document.getElementById('registerForm');
-  const userInput = document.getElementById('username');
-  const lastnameInput = document.getElementById('lastname');
-  const birthdateInput = document.getElementById('birthdate');
-  const emailInput = document.getElementById('email');
-  const passInput = document.getElementById('password');
-  const confirmPassInput = document.getElementById('confirmPassword');
-  const msg = document.getElementById('registerMsg');
+  const form = document.getElementById("registerForm");
+  const userInput = document.getElementById("username");
+  const lastnameInput = document.getElementById("lastname");
+  const birthdateInput = document.getElementById("brithdate");
+  const emailInput = document.getElementById("email");
+  const passInput = document.getElementById("password");
+  const confirmPassInput = document.getElementById("confirmPassword");
+  const msg = document.getElementById("registerMsg");
 
   if (!form) return;
 
-  form.addEventListener('submit', async (e) => {
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    msg.textContent = '';
+    msg.textContent = "";
 
-    const fields = [userInput, lastnameInput, birthdateInput, emailInput, passInput, confirmPassInput];
-    fields.forEach(field => field.classList.remove('error'));
+    const fields = [
+      userInput,
+      lastnameInput,
+      birthdateInput,
+      emailInput,
+      passInput,
+      confirmPassInput,
+    ];
+    fields.forEach((field) => field.classList.remove("error"));
 
     const username = userInput?.value.trim();
     const lastname = lastnameInput?.value.trim();
@@ -621,15 +657,22 @@ function initRegister() {
     const password = passInput?.value.trim();
     const confirmPassword = confirmPassInput?.value.trim();
 
-    if (!username || !lastname || !birthdate || !email || !password || !confirmPassword) {
-      msg.textContent = 'Por favor completa todos los campos.';
+    if (
+      !username ||
+      !lastname ||
+      !birthdate ||
+      !email ||
+      !password ||
+      !confirmPassword
+    ) {
+      msg.textContent = "Por favor completa todos los campos.";
 
-      if (!username) userInput.classList.add('error');
-      if (!lastname) lastnameInput.classList.add('error');
-      if (!birthdate) birthdateInput.classList.add('error');
-      if (!email) emailInput.classList.add('error');
-      if (!password) passInput.classList.add('error');
-      if (!confirmPassword) confirmPassInput.classList.add('error');
+      if (!username) userInput.classList.add("error");
+      if (!lastname) lastnameInput.classList.add("error");
+      if (!birthdate) birthdateInput.classList.add("error");
+      if (!email) emailInput.classList.add("error");
+      if (!password) passInput.classList.add("error");
+      if (!confirmPassword) confirmPassInput.classList.add("error");
 
       if (!username) userInput.focus();
       else if (!lastname) lastnameInput.focus();
@@ -642,9 +685,9 @@ function initRegister() {
     }
 
     if (password !== confirmPassword) {
-      msg.textContent = 'Las contraseñas no coinciden.';
-      passInput.classList.add('error');
-      confirmPassInput.classList.add('error');
+      msg.textContent = "Las contraseñas no coinciden.";
+      passInput.classList.add("error");
+      confirmPassInput.classList.add("error");
       passInput.focus();
       return;
     }
@@ -652,16 +695,21 @@ function initRegister() {
     form.querySelector('button[type="submit"]').disabled = true;
 
     try {
-      const data = await registerUser({ username, lastname, birthdate, email, password });
-      msg.textContent = 'Registro exitoso';
+      const data = await registerUser({
+        username,
+        lastname,
+        birthdate,
+        email,
+        password,
+      });
+      msg.textContent = "Registro exitoso";
 
-      document.getElementById('successModal').style.display = 'flex';
+      document.getElementById("successModal").style.display = "flex";
 
       setTimeout(() => {
-        document.getElementById('successModal').style.display = 'none';
-        location.hash = '#/home';
+        document.getElementById("successModal").style.display = "none";
+        location.hash = "#/home";
       }, 3000);
-
     } catch (err) {
       msg.textContent = `Error: ${err.message}`;
     } finally {
@@ -678,36 +726,95 @@ function initRegister() {
  * @returns {void}
  */
 function initForgot() {
-  const form = document.getElementById('recoverForm');
-  const emailInput = document.getElementById('email');
-  const msg = document.getElementById('message');
+  const form = document.getElementById("recoverForm");
+  const emailInput = document.getElementById("email");
+  const msg = document.getElementById("message");
+  const submitBtn = document.getElementById("submitBtn");
+
+  // Elementos del modal de confirmación
+  const confirmationModal = document.getElementById("confirmationModal");
+  const confirmationOkBtn = document.getElementById("confirmationOkBtn");
 
   if (!form) return;
 
-  form.addEventListener('submit', async (e) => {
+  // Función para mostrar modal
+  function showModal(modal) {
+    modal.classList.add("show");
+    modal.style.display = "block";
+  }
+
+  // Función para ocultar modal
+  function hideModal(modal) {
+    modal.classList.remove("show");
+    modal.style.display = "none"; // Asegura que el modal se oculte completamente
+    if (modal === profileModal && successMessage) {
+      successMessage.style.display = "none";
+    }
+  }
+
+  // Event listener para el botón OK del modal
+  confirmationOkBtn?.addEventListener("click", () => {
+    hideModal(confirmationModal);
+    // Redirigir al login después de cerrar el modal
+    setTimeout(() => {
+      location.hash = "#/home";
+    }, 300);
+  });
+
+  // Cerrar modales al hacer clic fuera
+  window.addEventListener("click", (e) => {
+    if (e.target === profileModal) {
+      hideModal(profileModal);
+    }
+    if (e.target === taskModal) {
+      resetTaskForm();
+      hideModal(taskModal);
+    }
+    if (e.target === deleteModal) {
+      hideModal(deleteModal);
+      currentTaskId = null;
+      currentTaskData = null;
+    }
+  });
+
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    msg.textContent = '';
+    msg.textContent = "";
 
     const email = emailInput?.value.trim();
 
     if (!email) {
-      msg.textContent = 'Por favor ingresa tu correo electrónico.';
+      msg.innerHTML =
+        '<div class="message-error">Por favor ingresa tu correo electrónico.</div>';
       return;
     }
 
-    form.querySelector('button[type="submit"]').disabled = true;
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      msg.innerHTML =
+        '<div class="message-error">Por favor ingresa un correo electrónico válido.</div>';
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Enviando...";
 
     try {
-      msg.textContent = 'Se ha enviado un enlace para restablecer tu contraseña.';
-      msg.style.color = 'green';
+      // Hacer la petición real al backend para recuperación de contraseña
+      await recoverPassword({ email });
 
-      setTimeout(() => (location.hash = '#/home'), 2000);
+      // Mostrar el modal de confirmación
+      showModal(confirmationModal);
 
+      // Limpiar el formulario
+      form.reset();
+      msg.textContent = "";
     } catch (err) {
-      msg.textContent = `No se pudo recuperar la contraseña: ${err.message}`;
-      msg.style.color = 'red';
+      msg.innerHTML = `<div class="message-error">Ha ocurrido un error. Por favor, inténtalo de nuevo más tarde.</div>`;
     } finally {
-      form.querySelector('button[type="submit"]').disabled = false;
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Enviar Enlace";
     }
   });
 }
