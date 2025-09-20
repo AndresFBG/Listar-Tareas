@@ -70,12 +70,12 @@
       <form id="taskForm">
         <input type="hidden" id="taskId" name="taskId">
         <div class="form-group">
-          <label for="taskTitle">Título</label>
-          <input type="text" id="taskTitle" name="title" required>
+          <label for="taskTitle">Título de la tarea</label>
+          <input type="text" id="taskTitle" name="title" placeholder="Añade un título" required>
         </div>
         <div class="form-group">
           <label for="taskDetails">Detalles</label>
-          <textarea id="taskDetails" name="details" rows="3"></textarea>
+          <textarea id="taskDetails" name="details" rows="3" placeholder="Añade una descripción" ></textarea>
         </div>
         <div class="datetime-group">
           <div class="form-group">
@@ -123,17 +123,17 @@
       <form id="profileForm">
         <div class="form-group">
           <label for="profileName">Nombres</label>
-          <input type="text" id="profileName" name="name" required>
+          <input type="text" id="profileName" name="name" placeholder="Ingresa tu nombre" required>
         </div>
         
         <div class="form-group">
           <label for="profileLastname">Apellidos</label>
-          <input type="text" id="profileLastname" name="lastname" required>
+          <input type="text" id="profileLastname" name="lastname" placeholder="Ingresa tu apellido" required>
         </div>
         
         <div class="form-group">
           <label for="profileEmail">Correo Electrónico</label>
-          <input type="email" id="profileEmail" name="email" required>
+          <input type="email" id="profileEmail" name="email" placeholder="Ingresa tu correo electrónico" required>
         </div>
         
         <div class="form-group">
@@ -147,7 +147,7 @@
         </div>
         
         <div class="modal-buttons">
-          <button type="submit" class="btn-save">Guardar Cambios</button>
+          <button type="submit" class="btn-save">Guardar</button>
           <button type="button" class="btn-cancel" id="profileCancelBtn">Cancelar</button>
         </div>
       </form>

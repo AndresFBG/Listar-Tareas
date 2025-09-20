@@ -51,8 +51,15 @@ export async function registerUser({ username, lastname, birthdate, email, passw
  * }
  */
 export async function loginUser({ email, password }) {
-  return http.post('/api/v1/auth/login', { email, password });
+  const data = await http.post('/api/v1/auth/login', { email, password });
+
+  if (data.token) {
+    localStorage.setItem("token", data.token); //  guarda el token
+  }
+
+  return data;
 }
+
 
 /**
  * Create a new task for the authenticated user
@@ -227,19 +234,40 @@ export async function getTasksByStatus(status) {
 }
 
 /**
- * Search tasks by title or details
- * @param {string} query - Search query
- * @returns {Promise<Array>} Array of matching tasks
+ * Request password recovery for a user
+ * @param {Object} params - Recovery data
+ * @param {string} params.email - User email to send recovery link
+ * @returns {Promise<Object>} Recovery confirmation
  * @throws {Error} If the API responds with an error status or message.
  * 
  * @example
  * try {
- *   const tasks = await searchTasks("authentication");
- *   console.log("Search results:", tasks);
+ *   await recoverPassword({ email: "user@example.com" });
+ *   console.log("Recovery email sent");
  * } catch (err) {
- *   console.error("Search failed:", err.message);
+ *   console.error("Recovery failed:", err.message);
  * }
  */
-export async function searchTasks(query) {
-  return http.get(`/api/v1/tasks/search?q=${encodeURIComponent(query)}`);
+export async function recoverPassword({ email }) {
+  return http.post('/api/v1/auth/recover-password', { email });
+}
+
+/**
+ * Reset password with a valid token
+ * @param {Object} params - Reset data
+ * @param {string} params.token - Recovery token from email
+ * @param {string} params.newPassword - New password
+ * @returns {Promise<Object>} Password reset confirmation
+ * @throws {Error} If the API responds with an error status or message.
+ * 
+ * @example
+ * try {
+ *   await resetPassword({ token: "reset-token", newPassword: "newPassword123" });
+ *   console.log("Password reset successfully");
+ * } catch (err) {
+ *   console.error("Password reset failed:", err.message);
+ * }
+ */
+export async function resetPassword({ token, newPassword }) {
+  return http.post('/api/v1/auth/reset-password', { token, newPassword });
 }
