@@ -51,8 +51,15 @@ export async function registerUser({ username, lastname, birthdate, email, passw
  * }
  */
 export async function loginUser({ email, password }) {
-  return http.post('/api/v1/auth/login', { email, password });
+  const data = await http.post('/api/v1/auth/login', { email, password });
+
+  if (data.token) {
+    localStorage.setItem("token", data.token); //  guarda el token
+  }
+
+  return data;
 }
+
 
 /**
  * Create a new task for the authenticated user
