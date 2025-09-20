@@ -3,7 +3,7 @@
  * 
  * Loaded from Vite environment variables (`VITE_API_URL`).
  */
-const BASE_URL = import.meta.env.VITE_API_URL || 'https://nextstep-zxhx.onrender.com';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 /**
  * Generic HTTP request helper using Fetch API.
@@ -22,13 +22,13 @@ const BASE_URL = import.meta.env.VITE_API_URL || 'https://nextstep-zxhx.onrender
  * @throws {Error} If the response is not OK (status >= 400), throws with message.
  */
 async function request(path, { method = 'GET', headers = {}, body } = {}) {
-  const token = localStorage.getItem('token'); // 👈 aquí recuperamos el JWT guardado en login
+  const token = localStorage.getItem('token'); //aquí recuperamos el JWT guardado en login
   
   const res = await fetch(`${BASE_URL}${path}`, {
     method,
     headers: {
       'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}), // 👈 añadimos el token si existe
+      ...(token ? { Authorization: `Bearer ${token}` } : {}), //añadimos el token si existe
       ...headers,
     },
     body: body ? JSON.stringify(body) : undefined,
