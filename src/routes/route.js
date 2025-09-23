@@ -1,4 +1,4 @@
-import { registerUser, loginUser, CreateTask, updateUserProfile, getUserProfile, getUserTasks, updateTask, deleteTask, recoverPassword } from '../services/userService.js';
+import { registerUser, loginUser, CreateTask, updateUserProfile, getUserTasks, updateTask, deleteTask, recoverPassword } from '../services/userService.js';
 
 const app = document.getElementById('app');
 
@@ -108,37 +108,28 @@ function initHome() {
     try {
       const data = await loginUser({ email, password });
 
-      // Guardar token en localStorage
-      localStorage.setItem('token', data.token);
+      if (data.user) {
+        localStorage.setItem('userData', JSON.stringify(data.user));
+        console.log("Usuario guardado en localStorage:", data.user);
 
-      // Cargar datos del usuario
-      await loadUserData();
-
-      // Redirigir al tablero
-      location.hash = '#/board';
+        userData = { ...userData, ...data.user }; // ahora sí, actualizamos memoria
+        location.hash = '#/board';
+      } else {
+        throw new Error("El backend no devolvió el usuario");
+      }
     } catch (err) {
       if (msg) msg.textContent = `Error al iniciar sesión: ${err.message}`;
-    }
-    finally {
+    } finally {
       form.querySelector('button[type="submit"]').disabled = false;
     }
+
   });
 }
 
 /**
  * Load user data from server
  */
-async function loadUserData() {
-  try {
-    const token = localStorage.getItem('token');
-    if (token) {
-      const userProfile = await getUserProfile();
-      userData = { ...userData, ...userProfile };
-    }
-  } catch (error) {
-    console.error('Error loading user data:', error);
-  }
-}
+
 
 /**
  * Initialize the "Board" view.
@@ -182,10 +173,14 @@ function initBoard() {
 
   // Función para cargar datos del usuario en el formulario de perfil
   function loadUserDataInForm() {
-    document.getElementById('profileName').value = userData.name || '';
+    document.getElementById('profileUsername').value = userData.username || '';
     document.getElementById('profileLastname').value = userData.lastname || '';
     document.getElementById('profileEmail').value = userData.email || '';
-    document.getElementById('profileBirthdate').value = userData.birthdate || '';
+    // Formatear la fecha para el input type="date"
+    if (userData.birthdate) {
+      const fecha = new Date(userData.birthdate);
+      document.querySelector("#profileBirthdate").value = fecha.toISOString().split("T")[0];
+    }
     document.getElementById('profileBio').value = userData.bio || '';
     updateAvatar();
   }
@@ -222,7 +217,6 @@ function initBoard() {
     document.getElementById('taskDate').value = task.date;
     document.getElementById('taskTime').value = task.time;
     document.getElementById('taskStatus').value = task.status;
-    
     currentTaskId = task._id;
     currentTaskData = { ...task };
     isEditMode = true;
@@ -246,7 +240,8 @@ function initBoard() {
       e.preventDefault();
 
       const formData = {
-        name: document.getElementById('profileName').value,
+        id: userData.id, 
+        username: document.getElementById('profileUsername').value,
         lastname: document.getElementById('profileLastname').value,
         email: document.getElementById('profileEmail').value,
         birthdate: document.getElementById('profileBirthdate').value,
@@ -264,6 +259,7 @@ function initBoard() {
 
         // Actualizar datos locales
         userData = { ...userData, ...formData };
+        localStorage.setItem('userData', JSON.stringify(userData));
         updateAvatar();
 
         console.log('Datos del usuario actualizados:', userData);
@@ -312,17 +308,17 @@ function initBoard() {
     if (currentTaskId) {
       try {
         await deleteTask(currentTaskId);
-        
+
         // Remover la tarea del DOM
         document.querySelector(`[data-task-id="${currentTaskId}"]`)?.remove();
-        
+
         // Verificar si la columna está vacía y mostrar mensaje
         checkEmptyColumns();
-        
+
         hideModal(deleteModal);
         currentTaskId = null;
         currentTaskData = null;
-        
+
         console.log('Tarea eliminada exitosamente');
       } catch (error) {
         console.error('Error al eliminar la tarea:', error);
@@ -379,31 +375,31 @@ function initBoard() {
       if (isEditMode && currentTaskId) {
         // Actualizar tarea existente
         taskResult = await updateTask(currentTaskId, backendTaskData);
-        
+
         // Remover la tarea antigua del DOM si cambió de columna
         const oldTaskElement = document.querySelector(`[data-task-id="${currentTaskId}"]`);
         if (oldTaskElement) {
           oldTaskElement.remove();
         }
-        
+
         // Agregar la tarea actualizada
         const frontendTask = {
           ...taskResult,
           id: currentTaskId,
           status: reverseStatusMap[taskResult.status] || status
         };
-        
+
         addTaskToDOM(frontendTask);
         console.log('Tarea actualizada exitosamente');
       } else {
         // Crear nueva tarea
         taskResult = await CreateTask(backendTaskData);
-        
+
         const frontendTask = {
           ...taskResult,
           status: reverseStatusMap[taskResult.status] || status
         };
-        
+
         addTaskToDOM(frontendTask);
         console.log('Nueva tarea creada exitosamente');
       }
@@ -413,14 +409,14 @@ function initBoard() {
 
       hideModal(taskModal);
       resetTaskForm();
-      
+
       saveBtn.textContent = originalText;
       saveBtn.disabled = false;
 
     } catch (error) {
       console.error('Error al guardar la tarea:', error);
       alert('Error al guardar la tarea. Por favor, intenta de nuevo.');
-      
+
       const saveBtn = form.querySelector('.btn-save');
       saveBtn.textContent = isEditMode ? 'Actualizar' : 'Guardar';
       saveBtn.disabled = false;
@@ -437,7 +433,7 @@ function initBoard() {
           doing: 'No hay tareas en progreso',
           done: 'No hay tareas completadas'
         };
-        
+
         const emptyState = document.createElement('div');
         emptyState.className = 'empty-state';
         emptyState.textContent = emptyStateMessages[status];
@@ -482,7 +478,7 @@ function initBoard() {
   async function loadTasksFromDatabase() {
     try {
       const tasks = await getUserTasks();
-      
+
       // Mapeo back → front para mostrar tareas
       const reverseStatusMap = {
         "Por Hacer": "todo",
@@ -503,7 +499,7 @@ function initBoard() {
   }
 
   // Funciones globales para los botones de acción (necesarias para onclick)
-  window.editTask = function(taskId) {
+  window.editTask = function (taskId) {
     // Encontrar la tarea en el DOM para obtener sus datos
     const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
     if (taskElement) {
@@ -515,17 +511,18 @@ function initBoard() {
         time: taskElement.querySelector('.task-date').textContent.split(' ')[1],
         status: getTaskStatus(taskElement)
       };
-      
+
       fillTaskForm(taskData);
       showModal(taskModal);
     }
   };
 
-  window.confirmDeleteTask = function(taskId) {
+  window.confirmDeleteTask = function (taskId) {
     currentTaskId = taskId;
     const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
     if (taskElement) {
-      currentTaskData = { _id: taskId,
+      currentTaskData = {
+        _id: taskId,
         title: taskElement.querySelector('.task-title').textContent
       };
     }
@@ -564,7 +561,8 @@ function initBoard() {
   // Función de cerrar sesión
   logoutBtn?.addEventListener('click', () => {
     if (confirm('¿Estás seguro que deseas cerrar sesión?')) {
-      localStorage.clear();
+      //localStorage.clear();
+      localStorage.removeItem('userData');
       userData = { name: '', lastname: '', email: '', birthdate: '', bio: '' };
       location.hash = '#/home';
     }
@@ -665,7 +663,7 @@ function initForgot() {
   const emailInput = document.getElementById('email');
   const msg = document.getElementById('message');
   const submitBtn = document.getElementById('submitBtn');
-  
+
   // Elementos del modal de confirmación
   const confirmationModal = document.getElementById('confirmationModal');
   const confirmationOkBtn = document.getElementById('confirmationOkBtn');
@@ -725,10 +723,10 @@ function initForgot() {
     try {
       // Hacer la petición real al backend para recuperación de contraseña
       await recoverPassword({ email });
-      
+
       // Mostrar el modal de confirmación
       showModal(confirmationModal);
-      
+
       // Limpiar el formulario
       form.reset();
       msg.textContent = '';

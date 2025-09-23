@@ -51,15 +51,8 @@ export async function registerUser({ username, lastname, birthdate, email, passw
  * }
  */
 export async function loginUser({ email, password }) {
-  const data = await http.post('/api/v1/auth/login', { email, password });
-
-  if (data.token) {
-    localStorage.setItem("token", data.token); //  guarda el token
-  }
-
-  return data;
+  return http.post('/api/v1/auth/login', { email, password });
 }
-
 
 /**
  * Create a new task for the authenticated user
@@ -90,23 +83,6 @@ export async function CreateTask({ title, details, date, time, status }) {
 }
 
 /**
- * Get current user's profile information
- * @returns {Promise<Object>} User profile data
- * @throws {Error} If the API responds with an error status or message.
- * 
- * @example
- * try {
- *   const profile = await getUserProfile();
- *   console.log("User profile:", profile);
- * } catch (err) {
- *   console.error("Failed to get profile:", err.message);
- * }
- */
-export async function getUserProfile() {
-  return http.get('/api/v1/users/profile');
-}
-
-/**
  * Update current user's profile information
  * @param {Object} profileData - Profile data to update
  * @param {string} profileData.name - User's first name
@@ -131,9 +107,10 @@ export async function getUserProfile() {
  *   console.error("Profile update failed:", err.message);
  * }
  */
-export async function updateUserProfile({ name, lastname, email, birthdate, bio }) {
-  return http.put('/api/v1/users/profile', { name, lastname, email, birthdate, bio });
+export async function updateUserProfile({ id, username, lastname, email, birthdate, bio }) {
+  return http.put(`/api/v1/users/${id}`, { username, lastname, email, birthdate, bio });
 }
+  
 
 /**
  * Get all tasks for the current authenticated user
