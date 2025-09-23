@@ -78,6 +78,7 @@ export function initRouter() {
 function handleRoute() {
   const path =
     (location.hash.startsWith("#/") ? location.hash.slice(2) : "") || "home";
+  console.log("Ruta actual:", path); // Verifica si la ruta se obtiene correctamente
   const known = ["home", "board", "register", "forgot", "about-us"];
   const route = known.includes(path) ? path : "home";
 
@@ -86,6 +87,7 @@ function handleRoute() {
     app.innerHTML = `<p style="color:#ffb4b4">Error loading the view.</p>`;
   });
 }
+
 
 /**
  * Initialize the "Home" view.
@@ -174,10 +176,11 @@ function initBoard() {
   const profileForm = document.getElementById("profileForm");
   const profileCancelBtn = document.getElementById("profileCancelBtn");
   const successMessage = document.getElementById("successMessage");
+  const logoutLink = document.getElementById("logoutLink");
 
   //Boton De nosotros
-  const usButton = document.getElementById('usBtn');
-  const backButton = document.getElementById('backButton');
+  const usButton = document.getElementById("usBtn");
+  const backButton = document.getElementById("backButton");
 
   // Elementos del modal de eliminación
   const deleteModal = document.getElementById("deleteModal");
@@ -214,10 +217,11 @@ function initBoard() {
   }
 
   // Event listener para el botón "Volver al Board"
-  if (backButton) backButton.addEventListener('click', () => {
-    location.hash = '#/board';  // Cambia la URL de vuelta a la vista "Board"
-  });
-  
+  if (backButton)
+    backButton.addEventListener("click", () => {
+      location.hash = "#/board"; // Cambia la URL de vuelta a la vista "Board"
+    });
+
   // Función para mostrar modal
   function showModal(modal) {
     modal.classList.add("show");
@@ -263,8 +267,27 @@ function initBoard() {
     profileLink.addEventListener("click", (e) => {
       e.preventDefault(); // Evita la navegación predeterminada del enlace
       showModal(profileModal); // Muestra el modal de perfil
-      dropdownMenu.style.display = "none"; // Oculta el menú desplegable después de hacer clic
       loadUserDataInForm(); // Carga los datos del usuario en el formulario de perfil
+    });
+  }
+
+  if (logoutLink) {
+    logoutLink.addEventListener("click", (e) => {
+      e.preventDefault(); // Prevenir la acción predeterminada (ir al enlace)
+
+      // Mostrar ventana emergente de confirmación
+      const isConfirmed = confirm("¿Estás seguro que deseas cerrar sesión?");
+
+      if (isConfirmed) {
+        // Limpiar el almacenamiento local
+        localStorage.clear();
+
+        // Redirigir al inicio
+        location.hash = "#/home";
+      } else {
+        // Si el usuario cancela, no hacemos nada
+        console.log("Cierre de sesión cancelado");
+      }
     });
   }
 
