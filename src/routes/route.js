@@ -1,14 +1,4 @@
-import {
-  registerUser,
-  loginUser,
-  CreateTask,
-  updateUserProfile,
-  getUserProfile,
-  getUserTasks,
-  updateTask,
-  deleteTask,
-  recoverPassword,
-} from "../services/userService.js";
+import { registerUser, loginUser, CreateTask, updateUserProfile, getUserProfile, getUserTasks, updateTask, deleteTask } from '../services/userService.js';
 
 const app = document.getElementById("app");
 
@@ -123,18 +113,19 @@ function initHome() {
       const data = await loginUser({ email, password });
 
       // Guardar token en localStorage
-      localStorage.setItem("token", data.token);
+      localStorage.setItem('token', data.token);
 
       // Cargar datos del usuario
       await loadUserData();
 
       // Redirigir al tablero
-      location.hash = "#/board";
+      location.hash = '#/board';
     } catch (err) {
       if (msg) msg.textContent = `Error al iniciar sesión: ${err.message}`;
     } finally {
       form.querySelector('button[type="submit"]').disabled = false;
     }
+
   });
 }
 
@@ -143,13 +134,13 @@ function initHome() {
  */
 async function loadUserData() {
   try {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     if (token) {
       const userProfile = await getUserProfile();
       userData = { ...userData, ...userProfile };
     }
   } catch (error) {
-    console.error("Error loading user data:", error);
+    console.error('Error loading user data:', error);
   }
 }
 
@@ -201,12 +192,11 @@ function initBoard() {
 
   // Función para cargar datos del usuario en el formulario de perfil
   function loadUserDataInForm() {
-    document.getElementById("profileName").value = userData.name || "";
-    document.getElementById("profileLastname").value = userData.lastname || "";
-    document.getElementById("profileEmail").value = userData.email || "";
-    document.getElementById("profileBirthdate").value =
-      userData.birthdate || "";
-    document.getElementById("profileBio").value = userData.bio || "";
+    document.getElementById('profileName').value = userData.name || '';
+    document.getElementById('profileLastname').value = userData.lastname || '';
+    document.getElementById('profileEmail').value = userData.email || '';
+    document.getElementById('profileBirthdate').value = userData.birthdate || '';
+    document.getElementById('profileBio').value = userData.bio || '';
     updateAvatar();
   }
 
@@ -248,14 +238,14 @@ function initBoard() {
 
   // Función para llenar el formulario con datos de la tarea para editar
   function fillTaskForm(task) {
-    document.getElementById("taskId").value = task._id;
-    document.getElementById("taskTitle").value = task.title;
-    document.getElementById("taskDetails").value = task.details;
-    document.getElementById("taskDate").value = task.date;
-    document.getElementById("taskTime").value = task.time;
-    document.getElementById("taskStatus").value = task.status;
-
-    currentTaskId = task._id;
+    document.getElementById('taskId').value = task.id;
+    document.getElementById('taskTitle').value = task.title;
+    document.getElementById('taskDetails').value = task.details;
+    document.getElementById('taskDate').value = task.date;
+    document.getElementById('taskTime').value = task.time;
+    document.getElementById('taskStatus').value = task.status;
+    
+    currentTaskId = task.id;
     currentTaskData = { ...task };
     isEditMode = true;
     taskModalTitle.textContent = "Editar Tarea";
@@ -304,11 +294,11 @@ function initBoard() {
       e.preventDefault();
 
       const formData = {
-        name: document.getElementById("profileName").value,
-        lastname: document.getElementById("profileLastname").value,
-        email: document.getElementById("profileEmail").value,
-        birthdate: document.getElementById("profileBirthdate").value,
-        bio: document.getElementById("profileBio").value,
+        name: document.getElementById('profileName').value,
+        lastname: document.getElementById('profileLastname').value,
+        email: document.getElementById('profileEmail').value,
+        birthdate: document.getElementById('profileBirthdate').value,
+        bio: document.getElementById('profileBio').value
       };
 
       try {
@@ -322,6 +312,7 @@ function initBoard() {
 
         // Actualizar datos locales
         userData = { ...userData, ...formData };
+        localStorage.setItem('userData', JSON.stringify(userData));
         updateAvatar();
 
         // Mostrar mensaje de éxito
@@ -389,8 +380,8 @@ function initBoard() {
         hideModal(deleteModal);
         currentTaskId = null;
         currentTaskData = null;
-
-        console.log("Tarea eliminada exitosamente");
+        
+        console.log('Tarea eliminada exitosamente');
       } catch (error) {
         console.error("Error al eliminar la tarea:", error);
         alert("Error al eliminar la tarea. Por favor, intenta de nuevo.");
@@ -486,11 +477,11 @@ function initBoard() {
       saveBtn.textContent = originalText;
       saveBtn.disabled = false;
     } catch (error) {
-      console.error("Error al guardar la tarea:", error);
-      alert("Error al guardar la tarea. Por favor, intenta de nuevo.");
-
-      const saveBtn = form.querySelector(".btn-save");
-      saveBtn.textContent = isEditMode ? "Actualizar" : "Guardar";
+      console.error('Error al guardar la tarea:', error);
+      alert('Error al guardar la tarea. Por favor, intenta de nuevo.');
+      
+      const saveBtn = form.querySelector('.btn-save');
+      saveBtn.textContent = isEditMode ? 'Actualizar' : 'Guardar';
       saveBtn.disabled = false;
     }
   });
@@ -505,9 +496,9 @@ function initBoard() {
           doing: "No hay tareas en progreso",
           done: "No hay tareas completadas",
         };
-
-        const emptyState = document.createElement("div");
-        emptyState.className = "empty-state";
+        
+        const emptyState = document.createElement('div');
+        emptyState.className = 'empty-state';
         emptyState.textContent = emptyStateMessages[status];
         taskList.appendChild(emptyState);
       }
@@ -516,9 +507,9 @@ function initBoard() {
 
   // Función para agregar la tarea al DOM
   function addTaskToDOM(task) {
-    const taskItem = document.createElement("div");
-    taskItem.className = "task-item";
-    taskItem.setAttribute("data-task-id", task._id);
+    const taskItem = document.createElement('div');
+    taskItem.className = 'task-item';
+    taskItem.setAttribute('data-task-id', task.id);
     taskItem.innerHTML = `
       <div class="task-header">
         <div class="task-title">${task.title}</div>
@@ -576,12 +567,12 @@ function initBoard() {
     const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
     if (taskElement) {
       const taskData = {
-        _id: taskId,
-        title: taskElement.querySelector(".task-title").textContent,
-        details: taskElement.querySelector(".task-details").textContent,
-        date: taskElement.querySelector(".task-date").textContent.split(" ")[0],
-        time: taskElement.querySelector(".task-date").textContent.split(" ")[1],
-        status: getTaskStatus(taskElement),
+        id: taskId,
+        title: taskElement.querySelector('.task-title').textContent,
+        details: taskElement.querySelector('.task-details').textContent,
+        date: taskElement.querySelector('.task-date').textContent.split(' ')[0],
+        time: taskElement.querySelector('.task-date').textContent.split(' ')[1],
+        status: getTaskStatus(taskElement)
       };
 
       fillTaskForm(taskData);
@@ -594,8 +585,8 @@ function initBoard() {
     const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
     if (taskElement) {
       currentTaskData = {
-        _id: taskId,
-        title: taskElement.querySelector(".task-title").textContent,
+        id: taskId,
+        title: taskElement.querySelector('.task-title').textContent
       };
     }
     showModal(deleteModal);
@@ -631,11 +622,11 @@ function initBoard() {
   updateAvatar();
 
   // Función de cerrar sesión
-  logoutBtn?.addEventListener("click", () => {
-    if (confirm("¿Estás seguro que deseas cerrar sesión?")) {
+  logoutBtn?.addEventListener('click', () => {
+    if (confirm('¿Estás seguro que deseas cerrar sesión?')) {
       localStorage.clear();
-      userData = { name: "", lastname: "", email: "", birthdate: "", bio: "" };
-      location.hash = "#/home";
+      userData = { name: '', lastname: '', email: '', birthdate: '', bio: '' };
+      location.hash = '#/home';
     }
   });
 }
@@ -718,14 +709,8 @@ function initRegister() {
     form.querySelector('button[type="submit"]').disabled = true;
 
     try {
-      const data = await registerUser({
-        username,
-        lastname,
-        birthdate,
-        email,
-        password,
-      });
-      msg.textContent = "Registro exitoso";
+      const data = await registerUser({ username, lastname, birthdate, email, password });
+      msg.textContent = 'Registro exitoso';
 
       document.getElementById("successModal").style.display = "flex";
 
@@ -749,16 +734,40 @@ function initRegister() {
  * @returns {void}
  */
 function initForgot() {
-  const form = document.getElementById("recoverForm");
-  const emailInput = document.getElementById("email");
-  const msg = document.getElementById("message");
-  const submitBtn = document.getElementById("submitBtn");
-
-  // Elementos del modal de confirmación
-  const confirmationModal = document.getElementById("confirmationModal");
-  const confirmationOkBtn = document.getElementById("confirmationOkBtn");
+  const form = document.getElementById('recoverForm');
+  const emailInput = document.getElementById('email');
+  const msg = document.getElementById('message');
 
   if (!form) return;
+
+  // Función para mostrar modal
+  function showModal(modal) {
+    modal.classList.add('show');
+  }
+
+  // Función para ocultar modal
+  function hideModal(modal) {
+    modal.classList.remove('show');
+  }
+
+  // Event listener para el botón OK del modal
+  confirmationOkBtn?.addEventListener('click', () => {
+    hideModal(confirmationModal);
+    // Redirigir al login después de cerrar el modal
+    setTimeout(() => {
+      location.hash = '#/home';
+    }, 300);
+  });
+
+  // Event listener para cerrar modal al hacer clic fuera
+  window.addEventListener('click', (e) => {
+    if (e.target === confirmationModal) {
+      hideModal(confirmationModal);
+      setTimeout(() => {
+        location.hash = '#/home';
+      }, 300);
+    }
+  });
 
   // Función para mostrar modal
   function showModal(modal) {
@@ -807,28 +816,17 @@ function initForgot() {
     const email = emailInput?.value.trim();
 
     if (!email) {
-      msg.innerHTML =
-        '<div class="message-error">Por favor ingresa tu correo electrónico.</div>';
+      msg.textContent = 'Por favor ingresa tu correo electrónico.';
       return;
     }
 
-    // Validar formato de email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      msg.innerHTML =
-        '<div class="message-error">Por favor ingresa un correo electrónico válido.</div>';
-      return;
-    }
-
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Enviando...";
+    form.querySelector('button[type="submit"]').disabled = true;
 
     try {
-      // Hacer la petición real al backend para recuperación de contraseña
-      await recoverPassword({ email });
+      msg.textContent = 'Se ha enviado un enlace para restablecer tu contraseña.';
+      msg.style.color = 'green';
 
-      // Mostrar el modal de confirmación
-      showModal(confirmationModal);
+      setTimeout(() => (location.hash = '#/home'), 2000);
 
       // Limpiar el formulario
       form.reset();
@@ -836,8 +834,7 @@ function initForgot() {
     } catch (err) {
       msg.innerHTML = `<div class="message-error">Ha ocurrido un error. Por favor, inténtalo de nuevo más tarde.</div>`;
     } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Enviar Enlace";
+      form.querySelector('button[type="submit"]').disabled = false;
     }
   });
 }
