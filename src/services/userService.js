@@ -31,8 +31,8 @@ import { http } from '../api/http.js';
  *   console.error("Registration failed:", err.message);
  * }
  */
-export async function registerUser({ username, lastname, birthdate, email, password }) {
-  return http.post('/api/v1/users', { username, lastname, birthdate, email, password });
+export async function registerUser({ username, lastname, birthdate, email, password, bio }) {
+  return http.post('/api/v1/users', { username, lastname, birthdate, email, password, bio });
 }
 
 /**

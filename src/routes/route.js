@@ -633,7 +633,7 @@ function initRegister() {
     form.querySelector('button[type="submit"]').disabled = true;
 
     try {
-      const data = await registerUser({ username, lastname, birthdate, email, password });
+      const data = await registerUser({ username, lastname, birthdate, email, password, bio: '' });
       msg.textContent = 'Registro exitoso';
 
       document.getElementById('successModal').style.display = 'flex';
