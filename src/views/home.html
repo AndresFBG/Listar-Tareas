@@ -1,36 +1,71 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
     <div class="container-login">
-        <div class="form-container">
-            <h1>¡Hola de nuevo!</h1>
-            <h2>Acceso a la cuenta</h2>
+      <div class="form-container">
+        <h1>¡Hola de nuevo!</h1>
+        <h2>Acceso a la cuenta</h2>
 
-            <form id="loginForm">
-                <input type="email" id="email" placeholder="Correo Electrónico" required>
-                <input type="password" id="password" placeholder="Contraseña" required>
-                                                
-                <button type="submit">Vamos a iniciar</button> 
-            </form>
+        <form id="loginForm">
+          <input
+            type="email"
+            id="email"
+            placeholder="Correo Electrónico"
+            required
+          />
+          <input
+            type="password"
+            id="password"
+            placeholder="Contraseña"
+            required
+          />
 
-            <!-- Contenedor para mensajes de error o éxito -->
-            <div id="loginMsg"></div>
+          <button type="submit">Vamos a iniciar</button>
+        </form>
 
-            <p>¿Necesitas una cuenta?&nbsp;<a href="#/register">Crear cuenta</a></p>
+        <!-- Contenedor para mensajes de error o éxito -->
+        <div id="loginMsg"></div>
 
-            <!-- Enlace para recuperar contraseña -->
-            <p>¿Problemas para acceder?&emsp;<a href="#/forgot">Restablecer contraseña</a></p>
-        </div>
-        <div class="image-container">
-            <!--<img src="public/image_login.svg" alt="Imagen de Login">-->
-            <img src="image_login.svg" alt="Imagen de Login">
-        </div>
+        <p>¿Necesitas una cuenta?&nbsp;<a href="#/register">Crear cuenta</a></p>
+
+        <!-- Enlace para recuperar contraseña -->
+        <p>
+          ¿Problemas para acceder?&emsp;<a href="#/forgot"
+            >Restablecer contraseña</a
+          >
+        </p>
+      </div>
+      <div class="image-container">
+        <!--<img src="public/image_login.svg" alt="Imagen de Login">-->
+        <img src="image_login.svg" alt="Imagen de Login" />
+      </div>
     </div>
-</body>
+
+    <!-- Modal de advertencia para login requerido -->
+    <div id="loginRequiredModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <p>Inicia sesión para poder continuar.</p>
+        <button id="closeLoginRequiredModal">Cerrar</button>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <nav class="footer-nav">
+        <a href="#/home">Acceder</a>
+        <span>|</span>
+        <a href="#/board">Home</a>
+        <span>|</span>
+        <a href="#/about-us">Nosotros</a>
+      </nav>
+      <p class="footer-copy">
+        &copy; 2025. Sitio web desarrollado por NEXTSTEP Todos los derechos reservados.
+      </p>
+    </footer>
+  </body>
 </html>

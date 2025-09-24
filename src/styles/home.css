@@ -70,21 +70,33 @@ body {
 }
 
 .us-btn {
-    background: #059669;
-    position: fixed;  /* Fija el botón en la pantalla */
-    top: 33px;  /* Mueve el botón 20px desde la parte superior */
-    right: 180px; /* Mueve el botón 20px desde el borde derecho */
-    width: 100px;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 10px 16px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.3s ease;
+  background: #059669;
+  position: fixed;
+  top: 33px;
+  right: 180px;
+  width: 100px;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  z-index: 101;
 }
 
+@media (max-width: 600px) {
+  .us-btn {
+    position: static;
+    width: 90%;
+    max-width: 300px;
+    margin: 10px auto 0 auto;
+    display: block;
+    font-size: 1em;
+    padding: 12px 0;
+  }
+}
 .logout-btn {
     background: #059669;
     position: fixed;  /* Fija el botón en la pantalla */
@@ -488,6 +500,7 @@ body {
     width: 100%;
     max-width: 450px;
     flex-shrink: 0;
+    text-align: center;
 }
 
 .container-login .image-container {
@@ -530,190 +543,11 @@ body {
     width: 100%;
     max-width: 450px;
     flex-shrink: 0;
-}
-
-/* ----------------------------------------- */
-/* Estilos específicos para la página de Reset Password */
-.container-reset-password {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    max-width: 1300px;
-    width: 100%;
-    gap: 40px;
-    margin-top: 15%;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 0 10px;
-}
-
-.container-reset-password .form-container {
-    background-color: #ffffff;
-    padding: 40px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 450px;
-    flex-shrink: 0;
-}
-
-/* Estilos para campos de contraseña con botón de mostrar/ocultar */
-.password-container {
-    position: relative;
-    margin-bottom: 15px;
-}
-
-.password-container input {
-    width: 100%;
-    padding: 12px 50px 12px 16px;
-    margin-bottom: 0;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 16px;
-    transition: border-color 0.3s ease;
-    background-color: #fafafa;
-}
-
-.password-container input:focus {
-    outline: none;
-    border-color: #007AFF;
-    background-color: white;
-    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
-}
-
-.toggle-password {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #9ca3af;
-    font-size: 16px;
-    padding: 8px;
-    width: auto;
-    margin-top: 0;
-    transition: color 0.2s ease;
-}
-
-.toggle-password:hover {
-    color: #6b7280;
-    transform: translateY(-50%);
-    box-shadow: none;
-}
-
-.toggle-password:focus {
-    outline: none;
-    color: #2563eb;
-}
-
-/* Estilos específicos para el modal de éxito de reset password */
-.success-modal {
-    max-width: 480px;
     text-align: center;
 }
 
-.success-icon {
-    font-size: 4rem;
-    color: #059669;
-    margin-bottom: 20px;
-}
-
-.success-message {
-    color: #374151;
-    line-height: 1.6;
-    margin-bottom: 24px;
-    font-size: 0.95rem;
-}
-
-/* Estilos para indicadores de fuerza de contraseña */
-.password-strength {
-    margin-top: 8px;
-    margin-bottom: 8px;
-}
-
-.strength-bar {
-    width: 100%;
-    height: 4px;
-    background-color: #e5e7eb;
-    border-radius: 2px;
-    overflow: hidden;
-}
-
-.strength-fill {
-    height: 100%;
-    transition: width 0.3s ease, background-color 0.3s ease;
-    border-radius: 2px;
-}
-
-.strength-weak {
-    background-color: #ef4444;
-    width: 25%;
-}
-
-.strength-medium {
-    background-color: #f59e0b;
-    width: 50%;
-}
-
-.strength-good {
-    background-color: #10b981;
-    width: 75%;
-}
-
-.strength-strong {
-    background-color: #059669;
-    width: 100%;
-}
-
-.strength-text {
-    font-size: 0.75rem;
-    margin-top: 4px;
-    font-weight: 500;
-}
-
-.strength-text.weak {
-    color: #ef4444;
-}
-
-.strength-text.medium {
-    color: #f59e0b;
-}
-
-.strength-text.good {
-    color: #10b981;
-}
-
-.strength-text.strong {
-    color: #059669;
-}
-
-/* Estilos para mensajes de validación */
-.password-requirements {
-    font-size: 0.8rem;
-    color: #6b7280;
-    margin-top: 8px;
-    line-height: 1.4;
-}
-
-.password-requirements ul {
-    margin: 8px 0;
-    padding-left: 20px;
-}
-
-.password-requirements li {
-    margin: 4px 0;
-    transition: color 0.2s ease;
-}
-
-.password-requirements li.valid {
-    color: #059669;
-}
-
-.password-requirements li.invalid {
-    color: #ef4444;
-}
+/* ----------------------------------------- */
+/* Estilos específicos para la página de Recuperación de Contraseña */
 .container-forgot {
     display: flex;
     align-items: center;
@@ -735,6 +569,7 @@ body {
     width: 100%;
     max-width: 450px;
     flex-shrink: 0;
+    text-align: center;
 }
 
 /* Estilos para el contenedor de icono en forgot */
@@ -1158,9 +993,30 @@ h2 {
   position: absolute;
   display: inline-block;
   top: 40px;
-  right: 90Px;
+  right: 90px;
+  z-index: 100;
 }
 
+@media (max-width: 600px) {
+  .dropdown {
+    position: static;
+    display: block;
+    margin: 0 auto;
+    top: unset;
+    right: unset;
+    text-align: right;
+  }
+  .dropdown-content {
+    right: 0;
+    left: auto;
+    min-width: 120px;
+    font-size: 0.95em;
+  }
+  .profile-img {
+    width: 32px;
+    height: 32px;
+  }
+}
 /* Estilo de la imagen de perfil */
 .profile-img {
   width: 40px; /* Tamaño de la imagen */
@@ -1196,11 +1052,163 @@ h2 {
 
 /* Cambiar el color al pasar el ratón por encima */
 .dropdown-content a:hover {
+   
   background-color: #007AFF;
 }
 
-/* Mostrar el menú cuando se hace clic en la imagen */
-.dropdown:hover .dropdown-content {
-  display: block;
- 
+/* Botón de eliminar cuenta en el modal de perfil */
+#deleteAccountBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-left: 370px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  width: 32px;
+}
+
+#deleteAccountBtn i {
+  color: #e11d48;
+  font-size: 1.3em;
+  transition: color 0.2s;
+}
+
+#deleteAccountBtn:hover i {
+  color: #b91c1c;
+}
+
+/* Estilo responsivo para pantallas más pequeñas */
+@media (max-width: 768px) {
+  #deleteAccountBtn {
+    margin-left: 370px; /* Reducir el margen en pantallas más pequeñas */
+    width: 24px; /* Hacer el botón más pequeño */
+  }
+
+  #deleteAccountBtn i {
+    font-size: 1.1em; /* Reducir el tamaño del icono */
+  }
+}
+
+/* Estilo para pantallas muy pequeñas (móviles en modo retrato) */
+@media (max-width: 480px) {
+  #deleteAccountBtn {
+    margin-left: 10px; /* Más pequeño aún en pantallas de móvil */
+    width: 20px; /* Ajustar el tamaño */
+  }
+
+  #deleteAccountBtn i {
+    font-size: 1em; /* Icono aún más pequeño */
+  }
+}
+
+
+/* Pie de página */
+.footer {
+  width: 100%;
+  background: #f3f4f6;
+  color: #374151;
+  text-align: center;
+  padding: 18px 0 8px 0;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  font-size: 1rem;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+  z-index: 50;
+}
+
+.footer-nav {
+  margin-bottom: 6px;
+}
+
+.footer-nav a {
+  color: #2563eb;
+  text-decoration: none;
+  margin: 0 8px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.footer-nav a:hover {
+  color: #1e40af;
+  text-decoration: underline;
+}
+
+.footer-copy {
+  font-size: 0.95em;
+  color: #6b7280;
+}
+
+
+/* CSS modal mensaje*/
+
+.modal {
+  position: fixed;
+  z-index: 9999;
+  left: 0; top: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-content {
+  background: #fff;
+  padding: 2em 1.5em;
+  border-radius: 8px;
+  text-align: center;
+  min-width: 250px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+}
+#closeLoginRequiredModal {
+  margin-top: 1em;
+  background: #e11d48;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5em 1.2em;
+  cursor: pointer;
+  font-weight: 600;
+}
+#closeLoginRequiredModal:hover {
+  background: #b91c1c;
+}
+
+/*lapiz editar perfil*/
+
+.profile-avatar-container {
+  position: relative;
+  display: inline-block;
+}
+
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  background: #e5e7eb;
+  color: #2011cc;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2em;
+  font-weight: bold;
+  margin: 0 auto 10px auto;
+  position: relative;
+}
+
+.edit-avatar-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #fff;
+  border: none;
+  border-radius: 50%;
+  padding: 4px;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  transition: background 0.2s;
+}
+
+.edit-avatar-btn:hover {
+  background: #f3f4f6;
 }

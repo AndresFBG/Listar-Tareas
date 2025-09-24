@@ -1,4 +1,13 @@
-import { registerUser, loginUser, CreateTask, updateUserProfile, getUserProfile, getUserTasks, updateTask, deleteTask } from '../services/userService.js';
+import {
+  registerUser,
+  loginUser,
+  CreateTask,
+  updateUserProfile,
+  getUserTasks,
+  updateTask,
+  deleteTask,
+  recoverPassword,
+} from "../services/userService.js";
 
 const app = document.getElementById("app");
 
@@ -42,7 +51,7 @@ async function loadView(name) {
   if (name === "board") initBoard();
   if (name === "register") initRegister();
   if (name === "forgot") initForgot();
-  if (name === "aboutUs") initAbout();
+  if (name === "about-us") initAbout();
 }
 
 /**
@@ -68,16 +77,38 @@ export function initRouter() {
 function handleRoute() {
   const path =
     (location.hash.startsWith("#/") ? location.hash.slice(2) : "") || "home";
-  console.log("Ruta actual:", path); // Verifica si la ruta se obtiene correctamente
   const known = ["home", "board", "register", "forgot", "about-us"];
-  const route = known.includes(path) ? path : "home";
+  let route = known.includes(path) ? path : "home";
+
+  // Protección de ruta: solo permitir acceso a "board" y "about-us" si hay sesión
+  if (route === "board" || route === "about-us") {
+    const user = localStorage.getItem("userData");
+    const fromFooter = localStorage.getItem("footerNavClick") === "1";
+    if (!user) {
+      // Guardar la ruta deseada para después del login
+      localStorage.setItem("pendingRoute", route);
+      route = "home";
+      // Mostrar mensaje solo si viene del footer
+      if (fromFooter) {
+        setTimeout(() => {
+          const msg = document.getElementById("loginMsg");
+          if (msg) {
+            msg.textContent = "Inicia sesión para poder continuar.";
+            msg.style.color = "#e11d48";
+          }
+          localStorage.removeItem("footerNavClick");
+        }, 100); // Espera a que cargue la vista
+      }
+    } else {
+      localStorage.removeItem("footerNavClick");
+    }
+  }
 
   loadView(route).catch((err) => {
     console.error(err);
     app.innerHTML = `<p style="color:#ffb4b4">Error loading the view.</p>`;
   });
 }
-
 
 /**
  * Initialize the "Home" view.
@@ -112,37 +143,48 @@ function initHome() {
     try {
       const data = await loginUser({ email, password });
 
-      // Guardar token en localStorage
-      localStorage.setItem('token', data.token);
+      if (data.user) {
+        localStorage.setItem("userData", JSON.stringify(data.user));
+        userData = { ...userData, ...data.user };
 
-      // Cargar datos del usuario
-      await loadUserData();
-
-      // Redirigir al tablero
-      location.hash = '#/board';
+        // Redirigir a la ruta pendiente si existe
+        const pendingRoute = localStorage.getItem("pendingRoute");
+        if (pendingRoute) {
+          localStorage.removeItem("pendingRoute");
+          if (location.hash !== "#/" + pendingRoute) {
+            location.hash = "#/" + pendingRoute;
+          } else {
+            handleRoute();
+          }
+        } else {
+          if (location.hash !== "#/board") {
+            location.hash = "#/board";
+          } else {
+            handleRoute();
+          }
+        }
+        // Limpiar mensaje si existe
+        if (msg) msg.textContent = "";
+      } else {
+        throw new Error("El backend no devolvió el usuario");
+      }
     } catch (err) {
       if (msg) msg.textContent = `Error al iniciar sesión: ${err.message}`;
     } finally {
       form.querySelector('button[type="submit"]').disabled = false;
     }
+  });
 
+  document.querySelectorAll(".footer-nav a").forEach((link) => {
+    link.addEventListener("click", () => {
+      localStorage.setItem("footerNavClick", "1");
+    });
   });
 }
 
 /**
  * Load user data from server
  */
-async function loadUserData() {
-  try {
-    const token = localStorage.getItem('token');
-    if (token) {
-      const userProfile = await getUserProfile();
-      userData = { ...userData, ...userProfile };
-    }
-  } catch (error) {
-    console.error('Error loading user data:', error);
-  }
-}
 
 /**
  * Initialize the "Board" view.
@@ -167,16 +209,95 @@ function initBoard() {
   const profileForm = document.getElementById("profileForm");
   const profileCancelBtn = document.getElementById("profileCancelBtn");
   const successMessage = document.getElementById("successMessage");
-  const logoutLink = document.getElementById("logoutLink");
-
-  //Boton De nosotros
-  const usButton = document.getElementById("usBtn");
-  const backButton = document.getElementById("backButton");
+  const userAvatar = document.getElementById("userAvatar");
 
   // Elementos del modal de eliminación
   const deleteModal = document.getElementById("deleteModal");
   const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
   const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+
+  //Boton de nosotros
+  const usButton = document.getElementById("usBtn");
+  const backButton = document.getElementById("backButton");
+
+  // ----------- AGREGADO PARA MENÚ DESPLEGABLE -----------
+  const profileImage = document.getElementById("profileImage");
+  const dropdownMenu = document.getElementById("dropdownMenu");
+  const logoutLink = document.getElementById("logoutLink");
+
+  // --------------Eliminar Cuenta --------------------------
+  const deleteAccountBtn = document.getElementById("deleteAccountBtn");
+
+  //Eliminar la cuenta de usuario
+  if (deleteAccountBtn) {
+    deleteAccountBtn.addEventListener("click", async () => {
+      if (
+        confirm(
+          "¿Estás seguro que deseas eliminar tu cuenta? Esta acción no se puede deshacer."
+        )
+      ) {
+        try {
+          // Llama a tu función para eliminar la cuenta (ajusta el nombre según tu backend)
+          await deleteUserAccount(); // Debes tener esta función implementada
+          localStorage.clear();
+          location.hash = "#/home";
+          alert("Cuenta eliminada correctamente.");
+        } catch (err) {
+          alert("Error al eliminar la cuenta.");
+        }
+      }
+    });
+  }
+
+  // Mostrar el menú desplegable al hacer clic en la imagen de perfil
+  if (profileImage && dropdownMenu) {
+    profileImage.addEventListener("click", () => {
+      dropdownMenu.style.display =
+        dropdownMenu.style.display === "block" ? "none" : "block";
+    });
+  }
+
+  // Cerrar el menú desplegable al hacer click fuera de él
+  document.addEventListener("click", function (e) {
+    if (
+      dropdownMenu &&
+      dropdownMenu.style.display === "block" &&
+      !dropdownMenu.contains(e.target) &&
+      e.target !== profileImage
+    ) {
+      dropdownMenu.style.display = "none";
+    }
+  });
+  // Evento para abrir el modal de perfil desde el menú
+  if (profileLink && profileModal) {
+    profileLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      showModal(profileModal);
+      loadUserDataInForm();
+      if (dropdownMenu) dropdownMenu.style.display = "none";
+    });
+  }
+
+  // Cerrar el menú desplegable al hacer click en cualquier opción del menú
+  if (dropdownMenu) {
+    dropdownMenu.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => {
+        dropdownMenu.style.display = "none";
+      });
+    });
+  }
+
+  // Evento para cerrar sesión desde el menú
+  if (logoutLink) {
+    logoutLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      const isConfirmed = confirm("¿Estás seguro que deseas cerrar sesión?");
+      if (isConfirmed) {
+        localStorage.clear();
+        location.hash = "#/home";
+      }
+    });
+  }
 
   // Función para actualizar el avatar con las iniciales del usuario
   function updateAvatar() {
@@ -192,11 +313,29 @@ function initBoard() {
 
   // Función para cargar datos del usuario en el formulario de perfil
   function loadUserDataInForm() {
-    document.getElementById('profileName').value = userData.name || '';
-    document.getElementById('profileLastname').value = userData.lastname || '';
-    document.getElementById('profileEmail').value = userData.email || '';
-    document.getElementById('profileBirthdate').value = userData.birthdate || '';
-    document.getElementById('profileBio').value = userData.bio || '';
+    // Cargar datos desde localStorage si existen
+    const stored = localStorage.getItem("userData");
+    if (stored) {
+      try {
+        userData = { ...userData, ...JSON.parse(stored) };
+      } catch (e) {
+        // Si hay error, no sobreescribas userData
+      }
+    }
+
+    document.getElementById("profileName").value = userData.username || "";
+    document.getElementById("profileLastname").value = userData.lastname || "";
+    document.getElementById("profileEmail").value = userData.email || "";
+    // Formatear la fecha para el input type="date"
+    if (userData.birthdate) {
+      const fecha = new Date(userData.birthdate);
+      document.getElementById("profileBirthdate").value = fecha
+        .toISOString()
+        .split("T")[0];
+    } else {
+      document.getElementById("profileBirthdate").value = "";
+    }
+    document.getElementById("profileBio").value = userData.bio || "";
     updateAvatar();
   }
 
@@ -205,13 +344,6 @@ function initBoard() {
       location.hash = "#/about-us"; // Cambia la URL a la vista "Sobre Nosotros"
     });
   }
-
-  // Event listener para el botón "Volver al Board"
-  if (backButton)
-    backButton.addEventListener("click", () => {
-      location.hash = "#/board"; // Cambia la URL de vuelta a la vista "Board"
-    });
-
   // Función para mostrar modal
   function showModal(modal) {
     modal.classList.add("show");
@@ -238,67 +370,41 @@ function initBoard() {
 
   // Función para llenar el formulario con datos de la tarea para editar
   function fillTaskForm(task) {
-    document.getElementById('taskId').value = task.id;
-    document.getElementById('taskTitle').value = task.title;
-    document.getElementById('taskDetails').value = task.details;
-    document.getElementById('taskDate').value = task.date;
-    document.getElementById('taskTime').value = task.time;
-    document.getElementById('taskStatus').value = task.status;
-    
-    currentTaskId = task.id;
+    document.getElementById("taskId").value = task._id;
+    document.getElementById("taskTitle").value = task.title;
+    document.getElementById("taskDetails").value = task.details;
+    document.getElementById("taskDate").value = task.date;
+    document.getElementById("taskTime").value = task.time;
+    document.getElementById("taskStatus").value = task.status;
+    currentTaskId = task._id;
     currentTaskData = { ...task };
     isEditMode = true;
     taskModalTitle.textContent = "Editar Tarea";
     saveTaskBtn.textContent = "Actualizar";
   }
 
-  /// Este es el evento para abrir el modal de perfil
+  // Event listeners para el modal de perfil
   if (profileLink && profileModal) {
-    profileLink.addEventListener("click", (e) => {
-      e.preventDefault(); // Evita la navegación predeterminada del enlace
-      showModal(profileModal); // Muestra el modal de perfil
-      loadUserDataInForm(); // Carga los datos del usuario en el formulario de perfil
+    profileLink.addEventListener("click", () => {
+      loadUserDataInForm();
+      showModal(profileModal);
     });
-  }
 
-  if (logoutLink) {
-    logoutLink.addEventListener("click", (e) => {
-      e.preventDefault(); // Prevenir la acción predeterminada (ir al enlace)
-
-      // Mostrar ventana emergente de confirmación
-      const isConfirmed = confirm("¿Estás seguro que deseas cerrar sesión?");
-
-      if (isConfirmed) {
-        // Limpiar el almacenamiento local
-        localStorage.clear();
-
-        // Redirigir al inicio
-        location.hash = "#/home";
-      } else {
-        // Si el usuario cancela, no hacemos nada
-        console.log("Cierre de sesión cancelado");
-      }
-    });
-  }
-
-  // Función para ocultar el modal de perfil
-  if (profileCancelBtn) {
-    profileCancelBtn.addEventListener("click", () => {
+    profileCancelBtn?.addEventListener("click", () => {
       hideModal(profileModal);
     });
-  }
 
-  // Lógica del formulario de perfil
-  if (profileForm) {
-    profileForm.addEventListener("submit", async (e) => {
+    // Event listener para el formulario de perfil
+    profileForm?.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const formData = {
-        name: document.getElementById('profileName').value,
-        lastname: document.getElementById('profileLastname').value,
-        email: document.getElementById('profileEmail').value,
-        birthdate: document.getElementById('profileBirthdate').value,
-        bio: document.getElementById('profileBio').value
+        id: userData.id,
+        username: document.getElementById("profileName").value, // <--- usa el mismo id que en loadUserDataInForm
+        lastname: document.getElementById("profileLastname").value,
+        email: document.getElementById("profileEmail").value,
+        birthdate: document.getElementById("profileBirthdate").value,
+        bio: document.getElementById("profileBio").value,
       };
 
       try {
@@ -312,8 +418,10 @@ function initBoard() {
 
         // Actualizar datos locales
         userData = { ...userData, ...formData };
-        localStorage.setItem('userData', JSON.stringify(userData));
+        localStorage.setItem("userData", JSON.stringify(userData));
         updateAvatar();
+
+        console.log("Datos del usuario actualizados:", userData);
 
         // Mostrar mensaje de éxito
         if (successMessage) {
@@ -334,18 +442,6 @@ function initBoard() {
         saveBtn.disabled = false;
       }
     });
-  }
-
-  // Funciones auxiliares para mostrar y ocultar el modal
-  function showModal(modal) {
-    modal.classList.add("show");
-  }
-
-  function hideModal(modal) {
-    modal.classList.remove("show");
-    if (modal === profileModal && successMessage) {
-      successMessage.style.display = "none";
-    }
   }
 
   // Event listeners para tareas
@@ -380,8 +476,8 @@ function initBoard() {
         hideModal(deleteModal);
         currentTaskId = null;
         currentTaskData = null;
-        
-        console.log('Tarea eliminada exitosamente');
+
+        console.log("Tarea eliminada exitosamente");
       } catch (error) {
         console.error("Error al eliminar la tarea:", error);
         alert("Error al eliminar la tarea. Por favor, intenta de nuevo.");
@@ -477,11 +573,11 @@ function initBoard() {
       saveBtn.textContent = originalText;
       saveBtn.disabled = false;
     } catch (error) {
-      console.error('Error al guardar la tarea:', error);
-      alert('Error al guardar la tarea. Por favor, intenta de nuevo.');
-      
-      const saveBtn = form.querySelector('.btn-save');
-      saveBtn.textContent = isEditMode ? 'Actualizar' : 'Guardar';
+      console.error("Error al guardar la tarea:", error);
+      alert("Error al guardar la tarea. Por favor, intenta de nuevo.");
+
+      const saveBtn = form.querySelector(".btn-save");
+      saveBtn.textContent = isEditMode ? "Actualizar" : "Guardar";
       saveBtn.disabled = false;
     }
   });
@@ -496,9 +592,9 @@ function initBoard() {
           doing: "No hay tareas en progreso",
           done: "No hay tareas completadas",
         };
-        
-        const emptyState = document.createElement('div');
-        emptyState.className = 'empty-state';
+
+        const emptyState = document.createElement("div");
+        emptyState.className = "empty-state";
         emptyState.textContent = emptyStateMessages[status];
         taskList.appendChild(emptyState);
       }
@@ -507,9 +603,9 @@ function initBoard() {
 
   // Función para agregar la tarea al DOM
   function addTaskToDOM(task) {
-    const taskItem = document.createElement('div');
-    taskItem.className = 'task-item';
-    taskItem.setAttribute('data-task-id', task.id);
+    const taskItem = document.createElement("div");
+    taskItem.className = "task-item";
+    taskItem.setAttribute("data-task-id", task._id);
     taskItem.innerHTML = `
       <div class="task-header">
         <div class="task-title">${task.title}</div>
@@ -567,12 +663,12 @@ function initBoard() {
     const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
     if (taskElement) {
       const taskData = {
-        id: taskId,
-        title: taskElement.querySelector('.task-title').textContent,
-        details: taskElement.querySelector('.task-details').textContent,
-        date: taskElement.querySelector('.task-date').textContent.split(' ')[0],
-        time: taskElement.querySelector('.task-date').textContent.split(' ')[1],
-        status: getTaskStatus(taskElement)
+        _id: taskId,
+        title: taskElement.querySelector(".task-title").textContent,
+        details: taskElement.querySelector(".task-details").textContent,
+        date: taskElement.querySelector(".task-date").textContent.split(" ")[0],
+        time: taskElement.querySelector(".task-date").textContent.split(" ")[1],
+        status: getTaskStatus(taskElement),
       };
 
       fillTaskForm(taskData);
@@ -585,8 +681,8 @@ function initBoard() {
     const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
     if (taskElement) {
       currentTaskData = {
-        id: taskId,
-        title: taskElement.querySelector('.task-title').textContent
+        _id: taskId,
+        title: taskElement.querySelector(".task-title").textContent,
       };
     }
     showModal(deleteModal);
@@ -622,11 +718,12 @@ function initBoard() {
   updateAvatar();
 
   // Función de cerrar sesión
-  logoutBtn?.addEventListener('click', () => {
-    if (confirm('¿Estás seguro que deseas cerrar sesión?')) {
-      localStorage.clear();
-      userData = { name: '', lastname: '', email: '', birthdate: '', bio: '' };
-      location.hash = '#/home';
+  logoutBtn?.addEventListener("click", () => {
+    if (confirm("¿Estás seguro que deseas cerrar sesión?")) {
+      //localStorage.clear();
+      localStorage.removeItem("userData");
+      userData = { name: "", lastname: "", email: "", birthdate: "", bio: "" };
+      location.hash = "#/home";
     }
   });
 }
@@ -670,6 +767,7 @@ function initRegister() {
     const email = emailInput?.value.trim();
     const password = passInput?.value.trim();
     const confirmPassword = confirmPassInput?.value.trim();
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
 
     if (
       !username ||
@@ -698,6 +796,14 @@ function initRegister() {
       return;
     }
 
+    if (!passwordRegex.test(password)) {
+      msg.textContent =
+        "La contraseña debe tener mínimo 8 caracteres, incluir mayúsculas, minúsculas, números y símbolos.";
+      passInput.classList.add("error");
+      passInput.focus();
+      return;
+    }
+
     if (password !== confirmPassword) {
       msg.textContent = "Las contraseñas no coinciden.";
       passInput.classList.add("error");
@@ -709,8 +815,15 @@ function initRegister() {
     form.querySelector('button[type="submit"]').disabled = true;
 
     try {
-      const data = await registerUser({ username, lastname, birthdate, email, password });
-      msg.textContent = 'Registro exitoso';
+      const data = await registerUser({
+        username,
+        lastname,
+        birthdate,
+        email,
+        password,
+        bio: "",
+      });
+      msg.textContent = "Registro exitoso";
 
       document.getElementById("successModal").style.display = "flex";
 
@@ -734,54 +847,25 @@ function initRegister() {
  * @returns {void}
  */
 function initForgot() {
-  const form = document.getElementById('recoverForm');
-  const emailInput = document.getElementById('email');
-  const msg = document.getElementById('message');
+  const form = document.getElementById("recoverForm");
+  const emailInput = document.getElementById("email");
+  const msg = document.getElementById("message");
+  const submitBtn = document.getElementById("submitBtn");
+
+  // Elementos del modal de confirmación
+  const confirmationModal = document.getElementById("confirmationModal");
+  const confirmationOkBtn = document.getElementById("confirmationOkBtn");
 
   if (!form) return;
 
   // Función para mostrar modal
   function showModal(modal) {
-    modal.classList.add('show');
-  }
-
-  // Función para ocultar modal
-  function hideModal(modal) {
-    modal.classList.remove('show');
-  }
-
-  // Event listener para el botón OK del modal
-  confirmationOkBtn?.addEventListener('click', () => {
-    hideModal(confirmationModal);
-    // Redirigir al login después de cerrar el modal
-    setTimeout(() => {
-      location.hash = '#/home';
-    }, 300);
-  });
-
-  // Event listener para cerrar modal al hacer clic fuera
-  window.addEventListener('click', (e) => {
-    if (e.target === confirmationModal) {
-      hideModal(confirmationModal);
-      setTimeout(() => {
-        location.hash = '#/home';
-      }, 300);
-    }
-  });
-
-  // Función para mostrar modal
-  function showModal(modal) {
     modal.classList.add("show");
-    modal.style.display = "block";
   }
 
   // Función para ocultar modal
   function hideModal(modal) {
     modal.classList.remove("show");
-    modal.style.display = "none"; // Asegura que el modal se oculte completamente
-    if (modal === profileModal && successMessage) {
-      successMessage.style.display = "none";
-    }
   }
 
   // Event listener para el botón OK del modal
@@ -793,19 +877,13 @@ function initForgot() {
     }, 300);
   });
 
-  // Cerrar modales al hacer clic fuera
+  // Event listener para cerrar modal al hacer clic fuera
   window.addEventListener("click", (e) => {
-    if (e.target === profileModal) {
-      hideModal(profileModal);
-    }
-    if (e.target === taskModal) {
-      resetTaskForm();
-      hideModal(taskModal);
-    }
-    if (e.target === deleteModal) {
-      hideModal(deleteModal);
-      currentTaskId = null;
-      currentTaskData = null;
+    if (e.target === confirmationModal) {
+      hideModal(confirmationModal);
+      setTimeout(() => {
+        location.hash = "#/home";
+      }, 300);
     }
   });
 
@@ -816,17 +894,28 @@ function initForgot() {
     const email = emailInput?.value.trim();
 
     if (!email) {
-      msg.textContent = 'Por favor ingresa tu correo electrónico.';
+      msg.innerHTML =
+        '<div class="message-error">Por favor ingresa tu correo electrónico.</div>';
       return;
     }
 
-    form.querySelector('button[type="submit"]').disabled = true;
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      msg.innerHTML =
+        '<div class="message-error">Por favor ingresa un correo electrónico válido.</div>';
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Enviando...";
 
     try {
-      msg.textContent = 'Se ha enviado un enlace para restablecer tu contraseña.';
-      msg.style.color = 'green';
+      // Hacer la petición real al backend para recuperación de contraseña
+      await recoverPassword({ email });
 
-      setTimeout(() => (location.hash = '#/home'), 2000);
+      // Mostrar el modal de confirmación
+      showModal(confirmationModal);
 
       // Limpiar el formulario
       form.reset();
@@ -834,7 +923,17 @@ function initForgot() {
     } catch (err) {
       msg.innerHTML = `<div class="message-error">Ha ocurrido un error. Por favor, inténtalo de nuevo más tarde.</div>`;
     } finally {
-      form.querySelector('button[type="submit"]').disabled = false;
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Enviar Enlace";
     }
   });
+}
+
+function initAbout() {
+  const backButton = document.getElementById("backButton");
+  if (backButton) {
+    backButton.addEventListener("click", () => {
+      location.hash = "#/board";
+    });
+  }
 }

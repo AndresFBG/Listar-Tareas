@@ -1,182 +1,288 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestor de Tareas</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="home.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"> <!-- FontAwesome -->
-</head>
-<body>
-  <div class="container">
-    <!-- Encabezado con botones -->
-    <div class="header">
-      <h1>¡Organiza tus tareas!</h1>
-      <div class="header-buttons">
-        <button class="new-task-btn" id="newTaskBtn">+ Agregar tarea</button>
-        <button class="us-btn" id="usBtn">Nosotros</button>
-      </div>
-      <div class="dropdown">
-      <!-- Imagen de perfil (puedes agregar la ruta de tu imagen) -->
-      <img src="menu-bar.png" alt="Avatar" class="profile-img" id="profileImage">
-      
-      <!-- Menú desplegable -->
-      <div class="dropdown-content" id="dropdownMenu">
-        <a href="#" id="profileLink">Mi Perfil</a>
-        <a href="#" id="logoutLink">Cerrar sesión</a>
-        
-      </div>
-    </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestor de Tareas</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="home.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <!-- FontAwesome -->
+  </head>
+  <body>
+    <div class="container">
+      <!-- Encabezado con botones -->
+      <div class="header">
+        <h1>¡Organiza tus tareas!</h1>
+        <div class="header-buttons">
+          <button class="new-task-btn" id="newTaskBtn">+ Agregar tarea</button>
+          <button class="us-btn" id="usBtn">Nosotros</button>
+        </div>
+        <div class="dropdown">
+          <!-- Imagen de perfil (puedes agregar la ruta de tu imagen) -->
+          <img
+            src="menu-bar.png"
+            alt="Avatar"
+            class="profile-img"
+            id="profileImage"
+          />
 
-    </div>
-
-    <!-- Contenedor de las tareas -->
-    <div class="tasks-grid">
-      <!-- Columna "Pendientes" -->
-      <div class="task-column">
-        <div class="column-header">
-          <span>Pendientes:</span>
-          <button class="edit-btn" id="editTodoBtn" title="Editar nombre de columna">
-           <!-- <i class="fas fa-edit"></i> -->  
-          </button>
-        </div>
-        <div id="todo-tasks">
-          <div class="empty-state">No hay tareas pendientes</div>
-        </div>
-      </div>
-
-      <!-- Columna "Haciendo" -->
-      <div class="task-column">
-        <div class="column-header">
-          <span>En progreso:</span>
-          <button class="edit-btn" id="editDoingBtn" title="Editar nombre de columna">
-            <!-- <i class="fas fa-edit"></i> -->
-          </button>
-        </div>
-        <div id="doing-tasks">
-          <div class="empty-state">No hay tareas en progreso</div>
-        </div>
-      </div>
-
-      <!-- Columna "Hecho" -->
-      <div class="task-column">
-        <div class="column-header">
-          <span>Completadas:</span>
-          <button class="edit-btn" id="editDoneBtn" title="Editar nombre de columna">
-            <!-- <i class="fas fa-edit"></i> -->
-          </button>
-        </div>
-        <div id="done-tasks">
-          <div class="empty-state">No hay tareas completadas</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal para Crear/Editar Tarea -->
-  <div id="taskModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header" id="taskModalTitle">Crear Tarea</div>
-      <form id="taskForm">
-        <input type="hidden" id="taskId" name="taskId">
-        <div class="form-group">
-          <label for="taskTitle">Título de la tarea</label>
-          <input type="text" id="taskTitle" name="title" placeholder="Añade un título" required>
-        </div>
-        <div class="form-group">
-          <label for="taskDetails">Detalles</label>
-          <textarea id="taskDetails" name="details" rows="3" placeholder="Añade una descripción" ></textarea>
-        </div>
-        <div class="datetime-group">
-          <div class="form-group">
-            <label for="taskDate">Fecha</label>
-            <input type="date" id="taskDate" name="date" required>
-          </div>
-          <div class="form-group">
-            <label for="taskTime">Hora</label>
-            <input type="time" id="taskTime" name="time" required>
+          <!-- Menú desplegable -->
+          <div class="dropdown-content" id="dropdownMenu">
+            <a href="#" id="profileLink">Mi Perfil</a>
+            <a href="#" id="logoutLink">Cerrar sesión</a>
           </div>
         </div>
-        <div class="form-group">
-          <label for="taskStatus">Estado</label>
-          <select id="taskStatus" name="status" required>
-            <option value="">Seleccionar estado</option>
-            <option value="todo">Pentiente</option>
-            <option value="doing">En progreso</option>
-            <option value="done">Completada</option>
-          </select>
+      </div>
+
+      <!-- Contenedor de las tareas -->
+      <div class="tasks-grid">
+        <!-- Columna "Pendientes" -->
+        <div class="task-column">
+          <div class="column-header">
+            <span>Pendientes:</span>
+            <button
+              class="edit-btn"
+              id="editTodoBtn"
+              title="Editar nombre de columna"
+            >
+              <!-- <i class="fas fa-edit"></i> -->
+            </button>
+          </div>
+          <div id="todo-tasks">
+            <div class="empty-state">No hay tareas pendientes</div>
+          </div>
         </div>
+
+        <!-- Columna "Haciendo" -->
+        <div class="task-column">
+          <div class="column-header">
+            <span>En progreso:</span>
+            <button
+              class="edit-btn"
+              id="editDoingBtn"
+              title="Editar nombre de columna"
+            >
+              <!-- <i class="fas fa-edit"></i> -->
+            </button>
+          </div>
+          <div id="doing-tasks">
+            <div class="empty-state">No hay tareas en progreso</div>
+          </div>
+        </div>
+
+        <!-- Columna "Hecho" -->
+        <div class="task-column">
+          <div class="column-header">
+            <span>Completadas:</span>
+            <button
+              class="edit-btn"
+              id="editDoneBtn"
+              title="Editar nombre de columna"
+            >
+              <!-- <i class="fas fa-edit"></i> -->
+            </button>
+          </div>
+          <div id="done-tasks">
+            <div class="empty-state">No hay tareas completadas</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para Crear/Editar Tarea -->
+    <div id="taskModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header" id="taskModalTitle">Crear Tarea</div>
+        <form id="taskForm">
+          <input type="hidden" id="taskId" name="taskId" />
+          <div class="form-group">
+            <label for="taskTitle">Título de la tarea</label>
+            <input
+              type="text"
+              id="taskTitle"
+              name="title"
+              placeholder="Añade un título"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="taskDetails">Detalles</label>
+            <textarea
+              id="taskDetails"
+              name="details"
+              rows="3"
+              placeholder="Añade una descripción"
+            ></textarea>
+          </div>
+          <div class="datetime-group">
+            <div class="form-group">
+              <label for="taskDate">Fecha</label>
+              <input type="date" id="taskDate" name="date" required />
+            </div>
+            <div class="form-group">
+              <label for="taskTime">Hora</label>
+              <input type="time" id="taskTime" name="time" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="taskStatus">Estado</label>
+            <select id="taskStatus" name="status" required>
+              <option value="">Seleccionar estado</option>
+              <option value="todo">Pentiente</option>
+              <option value="doing">En progreso</option>
+              <option value="done">Completada</option>
+            </select>
+          </div>
+          <div class="modal-buttons">
+            <button type="submit" class="btn-save" id="saveTaskBtn">
+              Guardar
+            </button>
+            <button type="button" class="btn-cancel" id="cancelBtn">
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal para confirmar eliminación de tarea -->
+    <div id="deleteModal" class="modal">
+      <div class="modal-content">
+        <p>¿Estás seguro que deseas eliminar esta tarea?</p>
         <div class="modal-buttons">
-          <button type="submit" class="btn-save" id="saveTaskBtn">Guardar</button>
-          <button type="button" class="btn-cancel" id="cancelBtn">Cancelar</button>
+          <button id="confirmDeleteBtn" class="btn-delete">Eliminar</button>
+          <button id="cancelDeleteBtn" class="btn-cancel">Cancelar</button>
         </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Modal para confirmar eliminación de tarea -->
-  <div id="deleteModal" class="modal">
-    <div class="modal-content">
-      <p>¿Estás seguro que deseas eliminar esta tarea?</p>
-      <div class="modal-buttons">
-        <button id="confirmDeleteBtn" class="btn-delete">Eliminar</button>
-        <button id="cancelDeleteBtn" class="btn-cancel">Cancelar</button>
       </div>
     </div>
-  </div>
 
-  <!-- Modal para Editar Perfil de Usuario -->
-  <div id="profileModal" class="modal profile-modal">
-    <div class="modal-content">
-      <div class="modal-header">Mi Perfil</div>
+    <!-- Modal para Editar Perfil de Usuario -->
+    <div id="profileModal" class="modal profile-modal">
+      <div class="modal-content">
+        <div class="modal-header">Mi Perfil</div>
+        <button
+          id="deleteAccountBtn"
+          title="Eliminar cuenta"
+          style="background: none; border: none; cursor: pointer"
+        >
+          <i class="fas fa-trash" style="color: #e11d48; font-size: 1.3em"></i>
+        </button>
 
-      <!-- Avatar del usuario -->
-      <div class="profile-avatar" id="userAvatar">
-        U
+        <!-- Avatar del usuario -->
+        <div
+          class="profile-avatar-container"
+          style="position: relative; display: inline-block"
+        >
+          <div class="profile-avatar" id="userAvatar">U</div>
+          <button
+            type="button"
+            class="edit-avatar-btn"
+            title="Cambiar foto de perfil"
+            style="
+              position: absolute;
+              bottom: 0;
+              right: 0;
+              background: #fff;
+              border: none;
+              border-radius: 50%;
+              padding: 4px;
+              cursor: pointer;
+            "
+          >
+            <i
+              class="fas fa-pencil-alt"
+              style="color: #000000; font-size: 1em"
+            ></i>
+          </button>
+        </div>
+
+        <!-- Mensaje de éxito -->
+        <div id="successMessage" class="success-message">
+          ¡Perfil actualizado exitosamente!
+        </div>
+
+        <!-- Formulario para editar el perfil -->
+        <form id="profileForm">
+          <div class="form-group">
+            <input
+              type="text"
+              id="profileName"
+              name="name"
+              placeholder="Ingresa tu nombre"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="profileLastname">Apellidos</label>
+            <input
+              type="text"
+              id="profileLastname"
+              name="lastname"
+              placeholder="Ingresa tu apellido"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="profileEmail">Correo Electrónico</label>
+            <input
+              type="email"
+              id="profileEmail"
+              name="email"
+              placeholder="Ingresa tu correo electrónico"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="profileBirthdate">Fecha de Nacimiento</label>
+            <input
+              type="date"
+              id="profileBirthdate"
+              name="birthdate"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="profileBio">Acerca de mí (opcional)</label>
+            <textarea
+              id="profileBio"
+              name="bio"
+              rows="3"
+              placeholder="Cuéntanos un poco sobre ti..."
+            ></textarea>
+          </div>
+
+          <div class="modal-buttons">
+            <button type="submit" class="btn-save">Guardar</button>
+            <button type="button" class="btn-cancel" id="profileCancelBtn">
+              Cancelar
+            </button>
+          </div>
+        </form>
       </div>
-
-      <!-- Mensaje de éxito -->
-      <div id="successMessage" class="success-message">
-        ¡Perfil actualizado exitosamente!
-      </div>
-
-      <!-- Formulario para editar el perfil -->
-      <form id="profileForm">
-        <div class="form-group">
-          <label for="profileUsername">Nombres</label>
-          <input type="text" id="profileUsername" name="name" placeholder="Ingresa tu nombre" required>
-        </div>
-        
-        <div class="form-group">
-          <label for="profileLastname">Apellidos</label>
-          <input type="text" id="profileLastname" name="lastname" placeholder="Ingresa tu apellido" required>
-        </div>
-        
-        <div class="form-group">
-          <label for="profileEmail">Correo Electrónico</label>
-          <input type="email" id="profileEmail" name="email" placeholder="Ingresa tu correo electrónico" required>
-        </div>
-        
-        <div class="form-group">
-          <label for="profileBirthdate">Fecha de Nacimiento</label>
-          <input type="date" id="profileBirthdate" name="birthdate" required>
-        </div>
-        
-        <div class="form-group">
-          <label for="profileBio">Acerca de mí (opcional)</label>
-          <textarea id="profileBio" name="bio" rows="3" placeholder="Cuéntanos un poco sobre ti..."></textarea>
-        </div>
-        
-        <div class="modal-buttons">
-          <button type="submit" class="btn-save">Guardar</button>
-          <button type="button" class="btn-cancel" id="profileCancelBtn">Cancelar</button>
-        </div>
-      </form>
     </div>
-  </div>
-
-
-
-</body>
+    <footer class="footer">
+      <nav class="footer-nav">
+        <a href="#/home">Acceder</a>
+        <span>|</span>
+        <a href="#/board">Home</a>
+        <span>|</span>
+        <a href="#/about-us">Nosotros</a>
+      </nav>
+      <p class="footer-copy">
+        &copy; 2025. Sitio web desarrollado por NEXTSTEP Todos los derechos
+        reservados.
+      </p>
+    </footer>
+  </body>
 </html>
