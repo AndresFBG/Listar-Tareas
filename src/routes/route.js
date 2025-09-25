@@ -7,6 +7,7 @@ import {
   updateTask,
   deleteTask,
   recoverPassword,
+  deleteUserAccount
 } from "../services/userService.js";
 
 const app = document.getElementById("app");
@@ -237,12 +238,14 @@ function initBoard() {
         )
       ) {
         try {
-          // Llama a tu función para eliminar la cuenta (ajusta el nombre según tu backend)
-          await deleteUserAccount(); // Debes tener esta función implementada
+          // Llama a tu función para eliminar la cuenta
+          await deleteUserAccount(userData.id);
+
           localStorage.clear();
           location.hash = "#/home";
           alert("Cuenta eliminada correctamente.");
         } catch (err) {
+          console.error("Error al eliminar la cuenta:", err);
           alert("Error al eliminar la cuenta.");
         }
       }
@@ -400,7 +403,7 @@ function initBoard() {
 
       const formData = {
         id: userData.id,
-        username: document.getElementById("profileName").value, // <--- usa el mismo id que en loadUserDataInForm
+        username: document.getElementById("profileName").value,
         lastname: document.getElementById("profileLastname").value,
         email: document.getElementById("profileEmail").value,
         birthdate: document.getElementById("profileBirthdate").value,

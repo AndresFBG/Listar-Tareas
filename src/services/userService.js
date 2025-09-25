@@ -83,36 +83,6 @@ export async function CreateTask({ title, details, date, time, status }) {
 }
 
 /**
- * Update current user's profile information
- * @param {Object} profileData - Profile data to update
- * @param {string} profileData.name - User's first name
- * @param {string} profileData.lastname - User's last name
- * @param {string} profileData.email - User's email
- * @param {string} profileData.birthdate - User's birthdate
- * @param {string} [profileData.bio] - User's bio (optional)
- * @returns {Promise<Object>} Updated user profile data
- * @throws {Error} If the API responds with an error status or message.
- * 
- * @example
- * try {
- *   const updatedProfile = await updateUserProfile({
- *     name: "John",
- *     lastname: "Doe", 
- *     email: "john.doe@example.com",
- *     birthdate: "1990-05-15",
- *     bio: "Software developer passionate about technology"
- *   });
- *   console.log("Profile updated:", updatedProfile);
- * } catch (err) {
- *   console.error("Profile update failed:", err.message);
- * }
- */
-export async function updateUserProfile({ id, username, lastname, email, birthdate, bio }) {
-  return http.put(`/api/v1/users/${id}`, { username, lastname, email, birthdate, bio });
-}
-  
-
-/**
  * Get all tasks for the current authenticated user
  * @returns {Promise<Array>} Array of user tasks
  * @throws {Error} If the API responds with an error status or message.
@@ -175,39 +145,50 @@ export async function deleteTask(taskId) {
 }
 
 /**
- * Get a specific task by ID
- * @param {string} taskId - Task ID to retrieve
- * @returns {Promise<Object>} Task object
+ * Update current user's profile information
+ * @param {Object} profileData - Profile data to update
+ * @param {string} profileData.name - User's first name
+ * @param {string} profileData.lastname - User's last name
+ * @param {string} profileData.email - User's email
+ * @param {string} profileData.birthdate - User's birthdate
+ * @param {string} [profileData.bio] - User's bio (optional)
+ * @returns {Promise<Object>} Updated user profile data
  * @throws {Error} If the API responds with an error status or message.
  * 
  * @example
  * try {
- *   const task = await getTaskById("task123");
- *   console.log("Task retrieved:", task);
+ *   const updatedProfile = await updateUserProfile({
+ *     name: "John",
+ *     lastname: "Doe", 
+ *     email: "john.doe@example.com",
+ *     birthdate: "1990-05-15",
+ *     bio: "Software developer passionate about technology"
+ *   });
+ *   console.log("Profile updated:", updatedProfile);
  * } catch (err) {
- *   console.error("Failed to get task:", err.message);
+ *   console.error("Profile update failed:", err.message);
  * }
  */
-export async function getTaskById(taskId) {
-  return http.get(`/api/v1/tasks/${taskId}`);
+export async function updateUserProfile({ id, username, lastname, email, birthdate, bio }) {
+  return http.put(`/api/v1/users/${id}`, { username, lastname, email, birthdate, bio });
 }
 
 /**
- * Get tasks filtered by status
- * @param {string} status - Task status to filter by (Por Hacer, Haciendo, Hecho)
- * @returns {Promise<Array>} Array of tasks with the specified status
+ * Delete the current user's account
+ * @param {string} id - User ID to delete
+ * @returns {Promise<Object>} Delete confirmation
  * @throws {Error} If the API responds with an error status or message.
- * 
- * @example
+ * * @example
  * try {
- *   const todoTasks = await getTasksByStatus("Por Hacer");
- *   console.log("Todo tasks:", todoTasks);
+ *   await deleteUserAccount("user123");
+ *  console.log("Account deleted successfully");
  * } catch (err) {
- *   console.error("Failed to get tasks by status:", err.message);
+ *  console.error("Account deletion failed:", err.message);
  * }
- */
-export async function getTasksByStatus(status) {
-  return http.get(`/api/v1/tasks?status=${encodeURIComponent(status)}`);
+ * /
+ **/
+export async function deleteUserAccount(id) {
+  return http.del(`/api/v1/users/${id}`);
 }
 
 /**
@@ -226,7 +207,7 @@ export async function getTasksByStatus(status) {
  * }
  */
 export async function recoverPassword({ email }) {
-  return http.post('/api/v1/auth/recover-password', { email });
+  return http.post('/api/v1/password/forgot-password', { email });
 }
 
 /**
@@ -246,5 +227,5 @@ export async function recoverPassword({ email }) {
  * }
  */
 export async function resetPassword({ token, newPassword }) {
-  return http.post('/api/v1/auth/reset-password', { token, newPassword });
+  return http.post('/api/v1/password/reset-password/${token}', { token, newPassword });
 }
