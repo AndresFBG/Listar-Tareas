@@ -84,13 +84,19 @@ function handleRoute() {
   const path =
     (location.hash.startsWith("#/") ? location.hash.slice(2) : "") || "home";
   const known = ["home", "board", "register", "forgot", "about-us", "reset-password"]; // <- AGREGAR reset-password
-  let route = known.includes(path) ? path : "home";
+  let route;
+  if (path.startsWith("reset-password")) {
+    // permite rutas tipo reset-password/<token>
+    route = "reset-password";
+  } else {
+    route = known.includes(path) ? path : "home";
+  }
 
 
   // Route protection: allow "board" and "about-us" only if user is logged in
   // Protección de ruta: solo permitir acceso a "board", "about-us" y "reset-password" si hay sesión
 
-  if (route === "board" || route === "about-us" || route === "reset-password") {
+  if (route === "board" || route === "about-us") {
     const user = localStorage.getItem("userData");
     const fromFooter = localStorage.getItem("footerNavClick") === "1";
     if (!user) {
