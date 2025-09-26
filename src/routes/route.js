@@ -7,7 +7,8 @@ import {
   updateTask,
   deleteTask,
   recoverPassword,
-  deleteUserAccount
+  deleteUserAccount,
+  resetPassword,
 } from "../services/userService.js";
 
 const app = document.getElementById("app");
@@ -42,6 +43,7 @@ const viewURL = (name) => new URL(`../views/${name}.html`, import.meta.url);
  * @throws {Error} If the requested view cannot be fetched successfully.
  * @returns {Promise<void>} Resolves when the view has been loaded and initialized.
  */
+// 2. Actualizar la función loadView para incluir reset-password
 async function loadView(name) {
   const res = await fetch(viewURL(name));
   if (!res.ok) throw new Error(`Failed to load view: ${name}`);
@@ -53,6 +55,7 @@ async function loadView(name) {
   if (name === "register") initRegister();
   if (name === "forgot") initForgot();
   if (name === "about-us") initAbout();
+  if (name === "reset-password") initResetPassword(); // <- AGREGAR ESTA LÍNEA
 }
 
 /**
@@ -75,13 +78,15 @@ export function initRouter() {
  * @function handleRoute
  * @returns {void}
  */
+
+// 3. Actualizar la función handleRoute para incluir reset-password
 function handleRoute() {
   const path =
     (location.hash.startsWith("#/") ? location.hash.slice(2) : "") || "home";
-  const known = ["home", "board", "register", "forgot", "about-us"];
+  const known = ["home", "board", "register", "forgot", "about-us", "reset-password"]; // <- AGREGAR reset-password
   let route = known.includes(path) ? path : "home";
 
-  // Protección de ruta: solo permitir acceso a "board" y "about-us" si hay sesión
+  // Protección de ruta: solo permitir acceso a "board", "about-us" y "reset-password" si hay sesión
   if (route === "board" || route === "about-us") {
     const user = localStorage.getItem("userData");
     const fromFooter = localStorage.getItem("footerNavClick") === "1";
@@ -98,7 +103,7 @@ function handleRoute() {
             msg.style.color = "#e11d48";
           }
           localStorage.removeItem("footerNavClick");
-        }, 100); // Espera a que cargue la vista
+        }, 100);
       }
     } else {
       localStorage.removeItem("footerNavClick");
@@ -939,4 +944,166 @@ function initAbout() {
       location.hash = "#/board";
     });
   }
+}
+
+/**
+ * Initialize the "Reset Password" view.
+ * Handles password reset functionality with token validation.
+ *
+ * @function initResetPassword
+ * @returns {void}
+ */
+function initResetPassword() {
+  const form = document.getElementById("resetPasswordForm");
+  const newPasswordInput = document.getElementById("newPassword");
+  const confirmPasswordInput = document.getElementById("confirmPassword");
+  const tokenInput = document.getElementById("resetToken");
+  const msg = document.getElementById("message");
+  const submitBtn = document.getElementById("submitBtn");
+  
+  // Elementos del modal de éxito
+  const successModal = document.getElementById("successModal");
+  const goToLoginBtn = document.getElementById("goToLoginBtn");
+  
+  // Elementos para mostrar/ocultar contraseñas
+  const toggleNewPassword = document.getElementById("toggleNewPassword");
+  const toggleConfirmPassword = document.getElementById("toggleConfirmPassword");
+
+  if (!form) return;
+
+  // Extraer token de la URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token') || extractTokenFromHash();
+  
+  if (token) {
+    tokenInput.value = token;
+  } else {
+    msg.innerHTML = '<div class="message-error">Token de recuperación no válido o expirado.</div>';
+    submitBtn.disabled = true;
+    return;
+  }
+
+  // Función para extraer token del hash si viene en formato #/reset-password?token=xxx
+  function extractTokenFromHash() {
+    const hash = window.location.hash;
+    const tokenMatch = hash.match(/[?&]token=([^&]+)/);
+    return tokenMatch ? tokenMatch[1] : null;
+  }
+
+  // Función para mostrar modal
+  function showModal(modal) {
+    modal.classList.add("show");
+  }
+
+  // Función para ocultar modal
+  function hideModal(modal) {
+    modal.classList.remove("show");
+  }
+
+  // Toggle para mostrar/ocultar nueva contraseña
+  toggleNewPassword?.addEventListener("click", () => {
+    const type = newPasswordInput.type === "password" ? "text" : "password";
+    newPasswordInput.type = type;
+    const icon = toggleNewPassword.querySelector("i");
+    icon.classList.toggle("fa-eye");
+    icon.classList.toggle("fa-eye-slash");
+  });
+
+  // Toggle para mostrar/ocultar confirmación de contraseña
+  toggleConfirmPassword?.addEventListener("click", () => {
+    const type = confirmPasswordInput.type === "password" ? "text" : "password";
+    confirmPasswordInput.type = type;
+    const icon = toggleConfirmPassword.querySelector("i");
+    icon.classList.toggle("fa-eye");
+    icon.classList.toggle("fa-eye-slash");
+  });
+
+  // Event listener para el botón del modal de éxito
+  goToLoginBtn?.addEventListener("click", () => {
+    hideModal(successModal);
+    setTimeout(() => {
+      location.hash = "#/home";
+    }, 300);
+  });
+
+  // Event listener para cerrar modal al hacer clic fuera
+  window.addEventListener("click", (e) => {
+    if (e.target === successModal) {
+      hideModal(successModal);
+      setTimeout(() => {
+        location.hash = "#/home";
+      }, 300);
+    }
+  });
+
+  // Event listener para el formulario
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    msg.textContent = "";
+
+    const newPassword = newPasswordInput?.value.trim();
+    const confirmPassword = confirmPasswordInput?.value.trim();
+    const resetToken = tokenInput?.value.trim();
+
+    // Validaciones
+    if (!newPassword || !confirmPassword) {
+      msg.innerHTML = '<div class="message-error">Por favor completa todos los campos.</div>';
+      return;
+    }
+
+    // Validar formato de contraseña
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+      msg.innerHTML = '<div class="message-error">La contraseña debe tener mínimo 8 caracteres, incluir mayúsculas, minúsculas, números y símbolos.</div>';
+      newPasswordInput.focus();
+      return;
+    }
+
+    // Validar que las contraseñas coincidan
+    if (newPassword !== confirmPassword) {
+      msg.innerHTML = '<div class="message-error">Las contraseñas no coinciden.</div>';
+      confirmPasswordInput.focus();
+      return;
+    }
+
+    if (!resetToken) {
+      msg.innerHTML = '<div class="message-error">Token de recuperación no válido.</div>';
+      return;
+    }
+
+    // Deshabilitar botón y cambiar texto
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Cambiando contraseña...";
+
+    try {
+      // Llamar al servicio para resetear la contraseña
+      await resetPassword({ token: resetToken, newPassword });
+
+      // Mostrar modal de éxito
+      showModal(successModal);
+
+      // Limpiar el formulario
+      form.reset();
+      msg.textContent = "";
+
+    } catch (err) {
+      console.error("Error al resetear contraseña:", err);
+      
+      // Mostrar mensaje de error específico
+      let errorMessage = "Ha ocurrido un error. Por favor, inténtalo de nuevo.";
+      
+      if (err.message.includes("token")) {
+        errorMessage = "El enlace de recuperación ha expirado o no es válido. Por favor, solicita un nuevo enlace.";
+      } else if (err.message.includes("password")) {
+        errorMessage = "Error al actualizar la contraseña. Verifica que cumple con los requisitos.";
+      }
+      
+      msg.innerHTML = `<div class="message-error">${errorMessage}</div>`;
+      
+    } finally {
+      // Restaurar botón
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Cambiar contraseña";
+    }
+  });
 }
