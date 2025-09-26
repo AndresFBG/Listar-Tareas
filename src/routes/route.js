@@ -12,7 +12,7 @@ import {
 
 const app = document.getElementById("app");
 
-// Datos del usuario en memoria (se cargará desde el servidor)
+//  In-memory user data (will be populated from server responses)
 let userData = {
   name: "",
   lastname: "",
@@ -21,7 +21,7 @@ let userData = {
   bio: "",
 };
 
-// Variables para manejo de tareas
+// Task management variables
 let currentTaskId = null;
 let isEditMode = false;
 let currentTaskData = null;
@@ -81,15 +81,15 @@ function handleRoute() {
   const known = ["home", "board", "register", "forgot", "about-us"];
   let route = known.includes(path) ? path : "home";
 
-  // Protección de ruta: solo permitir acceso a "board" y "about-us" si hay sesión
+  // Route protection: allow "board" and "about-us" only if user is logged in
   if (route === "board" || route === "about-us") {
     const user = localStorage.getItem("userData");
     const fromFooter = localStorage.getItem("footerNavClick") === "1";
     if (!user) {
-      // Guardar la ruta deseada para después del login
+      // Save the desired route to redirect after login
       localStorage.setItem("pendingRoute", route);
       route = "home";
-      // Mostrar mensaje solo si viene del footer
+      // Show message only if navigation came from footer
       if (fromFooter) {
         setTimeout(() => {
           const msg = document.getElementById("loginMsg");
@@ -98,7 +98,7 @@ function handleRoute() {
             msg.style.color = "#e11d48";
           }
           localStorage.removeItem("footerNavClick");
-        }, 100); // Espera a que cargue la vista
+        }, 100); // Wait for the view to load
       }
     } else {
       localStorage.removeItem("footerNavClick");
@@ -113,8 +113,10 @@ function handleRoute() {
 
 /**
  * Initialize the "Home" view.
- * Handles the login/registration form and submits
- * the data to the user service.
+ * Handles login form submission
+ * Stores session data in localStorage.
+ * Redirects user to pending or default routes after login.
+ * Sets up footer navigation events.
  *
  * @function initHome
  * @returns {void}
@@ -148,7 +150,7 @@ function initHome() {
         localStorage.setItem("userData", JSON.stringify(data.user));
         userData = { ...userData, ...data.user };
 
-        // Redirigir a la ruta pendiente si existe
+        // Redirect to pending route if it exists
         const pendingRoute = localStorage.getItem("pendingRoute");
         if (pendingRoute) {
           localStorage.removeItem("pendingRoute");
@@ -164,7 +166,7 @@ function initHome() {
             handleRoute();
           }
         }
-        // Limpiar mensaje si existe
+        // Clear message if it exists
         if (msg) msg.textContent = "";
       } else {
         throw new Error("El backend no devolvió el usuario");
@@ -204,7 +206,7 @@ function initBoard() {
   const newTaskBtn = document.getElementById("newTaskBtn");
   const logoutBtn = document.getElementById("logoutBtn");
 
-  // Elementos del modal de perfil
+  // Elements of the profile modal
   const profileLink = document.getElementById("profileLink");
   const profileModal = document.getElementById("profileModal");
   const profileForm = document.getElementById("profileForm");
@@ -212,24 +214,24 @@ function initBoard() {
   const successMessage = document.getElementById("successMessage");
   const userAvatar = document.getElementById("userAvatar");
 
-  // Elementos del modal de eliminación
+  // Elements of the delete modal
   const deleteModal = document.getElementById("deleteModal");
   const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
   const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
 
-  //Boton de nosotros
+  //us button
   const usButton = document.getElementById("usBtn");
   const backButton = document.getElementById("backButton");
 
-  // ----------- AGREGADO PARA MENÚ DESPLEGABLE -----------
+  // ----------- ADDED TO DROP-DOWN MENU -----------
   const profileImage = document.getElementById("profileImage");
   const dropdownMenu = document.getElementById("dropdownMenu");
   const logoutLink = document.getElementById("logoutLink");
 
-  // --------------Eliminar Cuenta --------------------------
+  // --------------Delete Account --------------------------
   const deleteAccountBtn = document.getElementById("deleteAccountBtn");
 
-  //Eliminar la cuenta de usuario
+  //Delete the user account
   if (deleteAccountBtn) {
     deleteAccountBtn.addEventListener("click", async () => {
       if (
@@ -238,7 +240,7 @@ function initBoard() {
         )
       ) {
         try {
-          // Llama a tu función para eliminar la cuenta
+          // Call your function to delete the account
           await deleteUserAccount(userData.id);
 
           localStorage.clear();
@@ -252,7 +254,7 @@ function initBoard() {
     });
   }
 
-  // Mostrar el menú desplegable al hacer clic en la imagen de perfil
+  // Show dropdown menu when clicking on profile picture
   if (profileImage && dropdownMenu) {
     profileImage.addEventListener("click", () => {
       dropdownMenu.style.display =
@@ -260,7 +262,7 @@ function initBoard() {
     });
   }
 
-  // Cerrar el menú desplegable al hacer click fuera de él
+  // Close the drop-down menu by clicking outside it
   document.addEventListener("click", function (e) {
     if (
       dropdownMenu &&
@@ -271,7 +273,7 @@ function initBoard() {
       dropdownMenu.style.display = "none";
     }
   });
-  // Evento para abrir el modal de perfil desde el menú
+  // Event to open the profile modal from the menu
   if (profileLink && profileModal) {
     profileLink.addEventListener("click", (e) => {
       e.preventDefault();
@@ -281,7 +283,7 @@ function initBoard() {
     });
   }
 
-  // Cerrar el menú desplegable al hacer click en cualquier opción del menú
+  // Close the drop-down menu by clicking on any menu option
   if (dropdownMenu) {
     dropdownMenu.querySelectorAll("a").forEach((link) => {
       link.addEventListener("click", () => {
@@ -290,7 +292,7 @@ function initBoard() {
     });
   }
 
-  // Evento para cerrar sesión desde el menú
+  // Event to log out from the menu
   if (logoutLink) {
     logoutLink.addEventListener("click", (e) => {
       e.preventDefault();
@@ -302,7 +304,7 @@ function initBoard() {
     });
   }
 
-  // Función para actualizar el avatar con las iniciales del usuario
+  // Function to update the avatar with the user's initials
   function updateAvatar() {
     if (userData.name && userData.lastname) {
       const initials = (
@@ -314,22 +316,22 @@ function initBoard() {
     }
   }
 
-  // Función para cargar datos del usuario en el formulario de perfil
+  // Function to load user data into the profile form
   function loadUserDataInForm() {
-    // Cargar datos desde localStorage si existen
+    // Load data from localStorage if it exists
     const stored = localStorage.getItem("userData");
     if (stored) {
       try {
         userData = { ...userData, ...JSON.parse(stored) };
       } catch (e) {
-        // Si hay error, no sobreescribas userData
+        // If there is an error, do not overwrite userData
       }
     }
 
     document.getElementById("profileName").value = userData.username || "";
     document.getElementById("profileLastname").value = userData.lastname || "";
     document.getElementById("profileEmail").value = userData.email || "";
-    // Formatear la fecha para el input type="date"
+    // Format the date for input type="date"
     if (userData.birthdate) {
       const fecha = new Date(userData.birthdate);
       document.getElementById("profileBirthdate").value = fecha
@@ -344,15 +346,15 @@ function initBoard() {
 
   if (usButton) {
     usButton.addEventListener("click", () => {
-      location.hash = "#/about-us"; // Cambia la URL a la vista "Sobre Nosotros"
+      location.hash = "#/about-us"; // Change the URL to the "About Us" view
     });
   }
-  // Función para mostrar modal
+  // Function to display modal
   function showModal(modal) {
     modal.classList.add("show");
   }
 
-  // Función para ocultar modal
+  // Function to hide modal
   function hideModal(modal) {
     modal.classList.remove("show");
     if (modal === profileModal && successMessage) {
@@ -360,7 +362,7 @@ function initBoard() {
     }
   }
 
-  // Función para resetear el formulario de tareas
+  // Function to reset the task form
   function resetTaskForm() {
     form.reset();
     document.getElementById("taskId").value = "";
@@ -371,7 +373,7 @@ function initBoard() {
     saveTaskBtn.textContent = "Guardar";
   }
 
-  // Función para llenar el formulario con datos de la tarea para editar
+  // Function to fill the form with data from the task to edit
   function fillTaskForm(task) {
     document.getElementById("taskId").value = task._id;
     document.getElementById("taskTitle").value = task.title;
@@ -386,7 +388,7 @@ function initBoard() {
     saveTaskBtn.textContent = "Actualizar";
   }
 
-  // Event listeners para el modal de perfil
+  // Event listeners for the profile modal
   if (profileLink && profileModal) {
     profileLink.addEventListener("click", () => {
       loadUserDataInForm();
@@ -397,7 +399,7 @@ function initBoard() {
       hideModal(profileModal);
     });
 
-    // Event listener para el formulario de perfil
+    // Event listener for the profile form
     profileForm?.addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -416,17 +418,17 @@ function initBoard() {
         saveBtn.textContent = "Guardando...";
         saveBtn.disabled = true;
 
-        // Llamar al servicio para actualizar el perfil
+        // Call the service to update the profile
         await updateUserProfile(formData);
 
-        // Actualizar datos locales
+        //Update local data
         userData = { ...userData, ...formData };
         localStorage.setItem("userData", JSON.stringify(userData));
         updateAvatar();
 
         console.log("Datos del usuario actualizados:", userData);
 
-        // Mostrar mensaje de éxito
+        // Show success message
         if (successMessage) {
           successMessage.style.display = "block";
           setTimeout(() => {
@@ -447,7 +449,7 @@ function initBoard() {
     });
   }
 
-  // Event listeners para tareas
+  // Event listeners for tasks
   newTaskBtn?.addEventListener("click", () => {
     resetTaskForm();
     showModal(taskModal);
@@ -458,7 +460,7 @@ function initBoard() {
     hideModal(taskModal);
   });
 
-  // Event listener para el modal de eliminación
+  // Event listener for the delete modal
   cancelDeleteBtn?.addEventListener("click", () => {
     hideModal(deleteModal);
     currentTaskId = null;
@@ -470,10 +472,10 @@ function initBoard() {
       try {
         await deleteTask(currentTaskId);
 
-        // Remover la tarea del DOM
+        // Remove the task from the DOM
         document.querySelector(`[data-task-id="${currentTaskId}"]`)?.remove();
 
-        // Verificar si la columna está vacía y mostrar mensaje
+        // Check if the column is empty and display a message
         checkEmptyColumns();
 
         hideModal(deleteModal);
@@ -488,7 +490,7 @@ function initBoard() {
     }
   });
 
-  // Event listener para el formulario de tareas
+  // Event listener for the task form
   form?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const title = document.getElementById("taskTitle").value;
@@ -502,21 +504,21 @@ function initBoard() {
       return;
     }
 
-    // Mapeo front → back
+    // Front → back mapping
     const statusMap = {
       todo: "Por Hacer",
       doing: "Haciendo",
       done: "Hecho",
     };
 
-    // Mapeo back → front
+    // Front → back mapping
     const reverseStatusMap = {
       "Por Hacer": "todo",
       Haciendo: "doing",
       Hecho: "done",
     };
 
-    // Datos para el backend
+    // Data for the backend
     const backendTaskData = {
       title,
       details,
@@ -534,10 +536,10 @@ function initBoard() {
       let taskResult;
 
       if (isEditMode && currentTaskId) {
-        // Actualizar tarea existente
+        // Update existing task
         taskResult = await updateTask(currentTaskId, backendTaskData);
 
-        // Remover la tarea antigua del DOM si cambió de columna
+        // Remove the old task from the DOM if it changed columns
         const oldTaskElement = document.querySelector(
           `[data-task-id="${currentTaskId}"]`
         );
@@ -545,7 +547,7 @@ function initBoard() {
           oldTaskElement.remove();
         }
 
-        // Agregar la tarea actualizada
+        // Add the updated task
         const frontendTask = {
           ...taskResult,
           id: currentTaskId,
@@ -555,7 +557,7 @@ function initBoard() {
         addTaskToDOM(frontendTask);
         console.log("Tarea actualizada exitosamente");
       } else {
-        // Crear nueva tarea
+        // Create new task
         taskResult = await CreateTask(backendTaskData);
 
         const frontendTask = {
@@ -567,7 +569,7 @@ function initBoard() {
         console.log("Nueva tarea creada exitosamente");
       }
 
-      // Verificar columnas vacías
+      //  Check for empty columns
       checkEmptyColumns();
 
       hideModal(taskModal);
@@ -585,7 +587,7 @@ function initBoard() {
     }
   });
 
-  // Función para verificar columnas vacías
+  // Function to check for empty columns
   function checkEmptyColumns() {
     ["todo", "doing", "done"].forEach((status) => {
       const taskList = document.getElementById(`${status}-tasks`);
@@ -604,7 +606,7 @@ function initBoard() {
     });
   }
 
-  // Función para agregar la tarea al DOM
+  // Function to add the task to the DOM
   function addTaskToDOM(task) {
     const taskItem = document.createElement("div");
     taskItem.className = "task-item";
@@ -627,7 +629,7 @@ function initBoard() {
 
     const taskList = document.getElementById(`${task.status}-tasks`);
     if (taskList) {
-      // Remover el estado vacío si existe
+      // Remove empty state if it exists
       const emptyState = taskList.querySelector(".empty-state");
       if (emptyState) {
         emptyState.remove();
@@ -636,12 +638,12 @@ function initBoard() {
     }
   }
 
-  // Función para cargar las tareas desde la base de datos
+  // Function to load tasks from the database
   async function loadTasksFromDatabase() {
     try {
       const tasks = await getUserTasks();
 
-      // Mapeo back → front para mostrar tareas
+      // Back → front mapping to display tasks
       const reverseStatusMap = {
         "Por Hacer": "todo",
         Haciendo: "doing",
@@ -660,9 +662,9 @@ function initBoard() {
     }
   }
 
-  // Funciones globales para los botones de acción (necesarias para onclick)
+  // Global functions for action buttons (needed for onclick)
   window.editTask = function (taskId) {
-    // Encontrar la tarea en el DOM para obtener sus datos
+    // Find the task in the DOM to get its data
     const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
     if (taskElement) {
       const taskData = {
@@ -691,7 +693,7 @@ function initBoard() {
     showModal(deleteModal);
   };
 
-  // Función auxiliar para obtener el estado de la tarea basado en su contenedor
+  // Helper function to get the task status based on its container
   function getTaskStatus(taskElement) {
     const parent = taskElement.parentElement;
     if (parent.id === "todo-tasks") return "todo";
@@ -700,7 +702,7 @@ function initBoard() {
     return "todo";
   }
 
-  // Cerrar modales al hacer clic fuera
+  // Close modals on click outside
   window.addEventListener("click", (e) => {
     if (e.target === profileModal) {
       hideModal(profileModal);
@@ -716,11 +718,11 @@ function initBoard() {
     }
   });
 
-  // Cargar tareas y inicializar avatar
+  // Load tasks and initialize avatar
   loadTasksFromDatabase();
   updateAvatar();
 
-  // Función de cerrar sesión
+  // Sign out function
   logoutBtn?.addEventListener("click", () => {
     if (confirm("¿Estás seguro que deseas cerrar sesión?")) {
       //localStorage.clear();
@@ -855,32 +857,32 @@ function initForgot() {
   const msg = document.getElementById("message");
   const submitBtn = document.getElementById("submitBtn");
 
-  // Elementos del modal de confirmación
+  // Elements of the confirmation modal
   const confirmationModal = document.getElementById("confirmationModal");
   const confirmationOkBtn = document.getElementById("confirmationOkBtn");
 
   if (!form) return;
 
-  // Función para mostrar modal
+  //Function to display modal
   function showModal(modal) {
     modal.classList.add("show");
   }
 
-  // Función para ocultar modal
+  // Function to hide modal
   function hideModal(modal) {
     modal.classList.remove("show");
   }
 
-  // Event listener para el botón OK del modal
+  // Event listener for the modal's OK button
   confirmationOkBtn?.addEventListener("click", () => {
     hideModal(confirmationModal);
-    // Redirigir al login después de cerrar el modal
+    // Redirect to login after closing the modal
     setTimeout(() => {
       location.hash = "#/home";
     }, 300);
   });
 
-  // Event listener para cerrar modal al hacer clic fuera
+  // Event listener to close modal on click outside
   window.addEventListener("click", (e) => {
     if (e.target === confirmationModal) {
       hideModal(confirmationModal);
@@ -902,7 +904,7 @@ function initForgot() {
       return;
     }
 
-    // Validar formato de email
+    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       msg.innerHTML =
@@ -914,13 +916,13 @@ function initForgot() {
     submitBtn.textContent = "Enviando...";
 
     try {
-      // Hacer la petición real al backend para recuperación de contraseña
+      // Make the actual request to the backend for password recovery
       await recoverPassword({ email });
 
-      // Mostrar el modal de confirmación
+      // Show the confirmation modal
       showModal(confirmationModal);
 
-      // Limpiar el formulario
+      // Clear the form
       form.reset();
       msg.textContent = "";
     } catch (err) {

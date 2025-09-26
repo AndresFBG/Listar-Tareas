@@ -1,4 +1,4 @@
-/* Reset y estilos base */
+/* Reset and base styles */
 * {
     margin: 0;
     padding: 0;
@@ -24,7 +24,7 @@ body {
     align-items: center;
 }
 
-/* Estilos del encabezado */
+/* Header styles */
 .header h1 {
     font-size: 2rem;
     font-weight: 700;
@@ -55,9 +55,9 @@ body {
 
 .profile-btn {
     background: #059669;
-    position: fixed;  /* Fija el botón en la pantalla */
-    top: 20px;  /* Mueve el botón 20px desde la parte superior */
-    right: 170px; /* Mueve el botón 20px desde el borde derecho */
+    position: fixed;  /* Pin the button to the screen */
+    top: 20px;  /* Move the button 20px from the top */
+    right: 170px; /* Move the button 20px from the right edge */
     width: 100px;
     color: white;
     border: none;
@@ -99,9 +99,9 @@ body {
 }
 .logout-btn {
     background: #059669;
-    position: fixed;  /* Fija el botón en la pantalla */
-    top: 20.5px;  /* Mueve el botón 20px desde la parte superior */
-    right: 300px; /* Mueve el botón 20px desde el borde derecho */
+    position: fixed;  /* Pin the button to the screen */
+    top: 20.5px;  /* Move the button 20px from the top */
+    right: 300px; /* Move the button 20px from the right edge */
     width: 150px;
     color: white;
     border: none;
@@ -133,7 +133,7 @@ body {
     background: #dc2626;
 }
 
-/* Estilos de la grid de tareas */
+/* Task grid styles */
 .tasks-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -164,7 +164,7 @@ body {
     padding-bottom: 6px;
 }
 
-/* Estilos de las tareas */
+/* Task styles */
 .task-item {
     border: 1px solid #e5e7eb;
     border-radius: 6px;
@@ -181,7 +181,7 @@ body {
     transform: translateY(-1px);
 }
 
-/* Controles de las tareas (editar, eliminar) */
+/* Task controls (edit, delete) */
 .task-header {
     display: flex;
     justify-content: space-between;
@@ -218,7 +218,7 @@ body {
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
-    justify-content: center; /* Corregido */
+    justify-content: center; /* Corrected */
 }
 
 .loader-overlay {
@@ -243,7 +243,7 @@ body {
     color: #111827;
 }
 
-.loader-content .loader { /* Asegúrate de que el loader tenga la clase correcta */
+.loader-content .loader { /* Make sure the loader has the correct class */
     width: 28px;
     height: 28px;
 }
@@ -410,7 +410,7 @@ body {
     background: #dc2626;
 }
 
-/* Modal de eliminación */
+/* Delete modal */
 .delete-modal {
     max-width: 400px;
 }
@@ -422,7 +422,7 @@ body {
     line-height: 1.5;
 }
 
-/* Estilos específicos para el modal de perfil */
+/* Specific styles for the profile modal */
 .profile-modal .modal-content {
     max-width: 450px;
 }
@@ -454,7 +454,7 @@ body {
     display: none;
 }
 
-/* Estilos para los botones de editar (lápiz) en columnas */
+/* Styles for edit (pencil) buttons in columns */
 .edit-btn {
     background: none;
     border: none;
@@ -478,7 +478,7 @@ body {
 }
 
 /* ----------------------------------------- */
-/* Estilos específicos para la página de Login */
+/* Specific styles for the Login page */
 .container-login {
     display: flex;
     align-items: center;
@@ -521,7 +521,7 @@ body {
 }
 
 /* ----------------------------------------- */
-/* Estilos específicos para la página de Registro */
+/* Specific styles for the Registration page */
 .container-register {
     display: flex;
     align-items: center;
@@ -547,7 +547,7 @@ body {
 }
 
 /* ----------------------------------------- */
-/* Estilos específicos para la página de Recuperación de Contraseña */
+/* Specific styles for the Password Recovery page */
 .container-forgot {
     display: flex;
     align-items: center;
@@ -572,7 +572,7 @@ body {
     text-align: center;
 }
 
-/* Estilos para el contenedor de icono en forgot */
+/* Styles for the icon container in forgot */
 .icon-container {
     display: flex;
     justify-content: center;
@@ -585,7 +585,7 @@ body {
     object-fit: contain;
 }
 
-/* Estilos para mensajes en el formulario de recuperación */
+/* Styles for messages in the recovery form */
 .message-container {
     margin-bottom: 15px;
     min-height: 20px;
@@ -613,7 +613,7 @@ body {
     line-height: 1.4;
 }
 
-/* Estilos específicos para el modal de confirmación de recuperación */
+/* Specific styles for the recovery confirmation modal */
 .confirmation-modal {
     max-width: 480px;
     text-align: center;
@@ -637,7 +637,7 @@ body {
     padding: 12px 20px;
 }
 
-/* Estilo para el botón de cerrar modal */
+/* Style for the close modal button */
 .btn-close {
     background-color: #f44336;
     color: white;
@@ -655,7 +655,7 @@ body {
 }
 
 /* ----------------------------------------- */
-/* Formularios auth */
+/* auth forms */
 input {
     width: 100%;
     padding: 12px 16px;
@@ -840,22 +840,22 @@ a:hover {
 }
 
 
-/* Estilos Globales */
+/* Global Styles */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
-/* Estilos generales de la página */
-/* Estilos Globales */
+/* General page styles */
+/* Global Styles */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
-/* Estilos generales de la página */
+/* General page styles */
 body {
     font-family: 'Arial', sans-serif;
     background-color: #f4f4f4;
@@ -864,7 +864,7 @@ body {
     line-height: 1.6;
 }
 
-/* Títulos principales */
+/* Main titles */
 h2 {
     font-size: 2.5em;
     color: #010806;
@@ -873,7 +873,7 @@ h2 {
     text-align: center;
 }
 
-/* Sección de Misión, Visión y Sobre Nosotros */
+/* Mission, Vision and About Us Section */
 .about-section {
     margin-bottom: 50px;
     padding: 20px;
@@ -898,7 +898,7 @@ h2 {
     padding: 0 15px;
 }
 
-/* Sección de "Sobre Nosotros" */
+/* "About Us" Section" */
 .about-us {
     margin-top: 50px;
 }
@@ -909,7 +909,7 @@ h2 {
     color: #000000;
 }
 
-/* Contenedor de los miembros del equipo */
+/* Team Member Container */
 .team-members {
     display: flex;
     justify-content: center;
@@ -917,7 +917,7 @@ h2 {
     gap: 20px;
 }
 
-/* Tarjetas de los miembros del equipo */
+/* Team member cards */
 .team-member {
     background-color: #fff;
     border-radius: 8px;
@@ -929,7 +929,7 @@ h2 {
 }
 
 .team-member:hover {
-    transform: translateY(-10px); /* Efecto de elevación al pasar el ratón */
+    transform: translateY(-10px); /* Lift effect on mouseover */
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
@@ -952,7 +952,7 @@ h2 {
     color: #666;
 }
 
-/* Botón "Volver al Board" */
+/* "Back to Board" button */
 .back-button {
     text-align: center;
     margin-top: 30px;
@@ -973,7 +973,7 @@ h2 {
     background-color: #046f50;
 }
 
-/* Responsividad */
+/* Responsiveness */
 @media (max-width: 768px) {
     .team-member {
         width: 45%;
@@ -988,7 +988,7 @@ h2 {
 
 
 
-/* Estilo del contenedor del menú desplegable */
+/* Dropdown menu container style */
 .dropdown {
   position: absolute;
   display: inline-block;
@@ -1017,15 +1017,15 @@ h2 {
     height: 32px;
   }
 }
-/* Estilo de la imagen de perfil */
+/* Profile picture style */
 .profile-img {
-  width: 40px; /* Tamaño de la imagen */
-  height: 40px; /* Tamaño de la imagen */
-  border-radius: 50%; /* Hacer la imagen circular */
+  width: 40px; /* Image size */
+  height: 40px; /* Image size */
+  border-radius: 50%; /* Make the image circular */
   cursor: pointer;
 }
 
-/* Estilo del menú desplegable (oculto por defecto) */
+/* Dropdown menu style (hidden by default) */
 .dropdown-content {
   display: none;
   position: absolute;
@@ -1041,7 +1041,7 @@ h2 {
 }
 
 
-/* Estilo de los elementos dentro del menú */
+/* Style of the elements within the menu */
 .dropdown-content a {
   color: black;
   padding: 12px 16px;
@@ -1050,13 +1050,13 @@ h2 {
   
 }
 
-/* Cambiar el color al pasar el ratón por encima */
+/* Change color on mouse over */
 .dropdown-content a:hover {
    
   background-color: #007AFF;
 }
 
-/* Botón de eliminar cuenta en el modal de perfil */
+/* Delete account button in the profile modal */
 #deleteAccountBtn {
   background: none;
   border: none;
@@ -1078,32 +1078,32 @@ h2 {
   color: #b91c1c;
 }
 
-/* Estilo responsivo para pantallas más pequeñas */
+/* Responsive style for smaller screens */
 @media (max-width: 768px) {
   #deleteAccountBtn {
-    margin-left: 370px; /* Reducir el margen en pantallas más pequeñas */
-    width: 24px; /* Hacer el botón más pequeño */
+    margin-left: 370px; /* Reduce margin on smaller screens */
+    width: 24px; /* Make the button smaller */
   }
 
   #deleteAccountBtn i {
-    font-size: 1.1em; /* Reducir el tamaño del icono */
+    font-size: 1.1em; /* Reduce icon size */
   }
 }
 
-/* Estilo para pantallas muy pequeñas (móviles en modo retrato) */
+/* Style for very small screens (portrait mode phones) */
 @media (max-width: 480px) {
   #deleteAccountBtn {
-    margin-left: 10px; /* Más pequeño aún en pantallas de móvil */
-    width: 20px; /* Ajustar el tamaño */
+    margin-left: 10px; /* Even smaller on mobile screens */
+    width: 20px; /* Adjust size */
   }
 
   #deleteAccountBtn i {
-    font-size: 1em; /* Icono aún más pequeño */
+    font-size: 1em; /* Even smaller icon */
   }
 }
 
 
-/* Pie de página */
+/* Footer */
 .footer {
   width: 100%;
   background: #f3f4f6;
@@ -1141,7 +1141,7 @@ h2 {
 }
 
 
-/* CSS modal mensaje*/
+/* CSS modal message*/
 
 .modal {
   position: fixed;
@@ -1174,7 +1174,7 @@ h2 {
   background: #b91c1c;
 }
 
-/*lapiz editar perfil*/
+/*pencil edit profile*/
 
 .profile-avatar-container {
   position: relative;

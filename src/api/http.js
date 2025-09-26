@@ -2,6 +2,7 @@
  * Base URL for API requests.
  * 
  * Loaded from Vite environment variables (`VITE_API_URL`).
+ * or falls back to `http://localhost:8080` if not defined.
  */
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
@@ -9,8 +10,9 @@ const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
  * Generic HTTP request helper using Fetch API.
  *
  * Automatically stringifies the request body (if provided),
- * sets default headers (`Content-Type: application/json`),
- * and parses JSON responses.
+ * Sets default headers (`Content-Type: application/json`).
+ * Attaches the JWT token from `localStorage` (if available).
+ * Parses JSON responses when applicable.
  *
  * @async
  * @param {string} path - API path (relative to BASE_URL).
