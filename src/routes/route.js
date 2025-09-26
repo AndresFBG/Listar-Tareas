@@ -90,7 +90,7 @@ function handleRoute() {
   // Route protection: allow "board" and "about-us" only if user is logged in
   // Protección de ruta: solo permitir acceso a "board", "about-us" y "reset-password" si hay sesión
 
-  if (route === "board" || route === "about-us") {
+  if (route === "board" || route === "about-us" || route === "reset-password") {
     const user = localStorage.getItem("userData");
     const fromFooter = localStorage.getItem("footerNavClick") === "1";
     if (!user) {
