@@ -252,7 +252,7 @@ function initBoard() {
   const profileForm = document.getElementById("profileForm");
   const profileCancelBtn = document.getElementById("profileCancelBtn");
   const successMessage = document.getElementById("successMessage");
-  const userAvatar = document.getElementById("userAvatar");
+
 
   // Elements of the delete modal
   const deleteModal = document.getElementById("deleteModal");
@@ -344,18 +344,7 @@ function initBoard() {
     });
   }
 
-  // Function to update the avatar with the user's initials
-  function updateAvatar() {
-    if (userData.name && userData.lastname) {
-      const initials = (
-        userData.name.charAt(0) + userData.lastname.charAt(0)
-      ).toUpperCase();
-      userAvatar.textContent = initials;
-    } else {
-      userAvatar.textContent = "U";
-    }
-  }
-
+ 
   // Function to load user data into the profile form
   function loadUserDataInForm() {
     // Load data from localStorage if it exists
@@ -381,7 +370,7 @@ function initBoard() {
       document.getElementById("profileBirthdate").value = "";
     }
     document.getElementById("profileBio").value = userData.bio || "";
-    updateAvatar();
+    
   }
 
   if (usButton) {
@@ -464,7 +453,7 @@ function initBoard() {
         //Update local data
         userData = { ...userData, ...formData };
         localStorage.setItem("userData", JSON.stringify(userData));
-        updateAvatar();
+       
 
         console.log("Datos del usuario actualizados:", userData);
 
@@ -760,7 +749,7 @@ function initBoard() {
 
   // Load tasks and initialize avatar
   loadTasksFromDatabase();
-  updateAvatar();
+  
 
   // Sign out function
   logoutBtn?.addEventListener("click", () => {

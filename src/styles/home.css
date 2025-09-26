@@ -1061,11 +1061,12 @@ h2 {
   background: none;
   border: none;
   cursor: pointer;
-  margin-left: 370px;
-  padding: 0;
+  margin-left: 360px;
+  padding: 10px;
   display: flex;
   align-items: center;
   width: 32px;
+  
 }
 
 #deleteAccountBtn i {
@@ -1140,6 +1141,35 @@ h2 {
   color: #6b7280;
 }
 
+/* Responsivo para pantallas más pequeñas */
+@media (max-width: 768px) {
+  .footer {
+    padding: 12px 0;
+    font-size: 0.9rem;
+  }
+
+  .footer-nav a {
+    margin: 0 5px;
+    font-size: 0.9em;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer {
+    padding: 10px 0;
+    font-size: 0.85rem;
+  }
+
+  .footer-nav a {
+    margin: 0 4px;
+    font-size: 0.85em;
+  }
+
+  .footer-copy {
+    font-size: 0.85em;
+  }
+}
+
 
 /* CSS modal message*/
 
@@ -1174,40 +1204,7 @@ h2 {
   background: #b91c1c;
 }
 
-/*pencil edit profile*/
 
-.profile-avatar-container {
-  position: relative;
-  display: inline-block;
-}
-
-.profile-avatar {
-  width: 64px;
-  height: 64px;
-  background: #e5e7eb;
-  color: #2011cc;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2.2em;
-  font-weight: bold;
-  margin: 0 auto 10px auto;
-  position: relative;
-}
-
-.edit-avatar-btn {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  background: #fff;
-  border: none;
-  border-radius: 50%;
-  padding: 4px;
-  cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-  transition: background 0.2s;
-}
 
 .edit-avatar-btn:hover {
   background: #f3f4f6;
