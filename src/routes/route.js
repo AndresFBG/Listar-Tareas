@@ -128,10 +128,8 @@ function handleRoute() {
 
 /**
  * Initialize the "Home" view.
- * Handles login form submission
- * Stores session data in localStorage.
- * Redirects user to pending or default routes after login.
- * Sets up footer navigation events.
+ * Handles login form submission, password toggle functionality,
+ * stores session data in localStorage, and manages route redirects.
  *
  * @function initHome
  * @returns {void}
@@ -141,8 +139,35 @@ function initHome() {
   const emailInput = document.getElementById("email");
   const passInput = document.getElementById("password");
   const msg = document.getElementById("loginMsg");
+  
+  // Elemento para toggle de contraseña
+  const toggleLoginPassword = document.getElementById("toggleLoginPassword");
 
   if (!form) return;
+
+  // Toggle para mostrar/ocultar contraseña en login
+  toggleLoginPassword?.addEventListener("click", () => {
+    const type = passInput.type === "password" ? "text" : "password";
+    passInput.type = type;
+    
+    // Buscar icono Font Awesome o span emoji
+    const fontAwesomeIcon = toggleLoginPassword.querySelector("i");
+    const emojiIcon = toggleLoginPassword.querySelector(".eye-icon");
+    
+    if (fontAwesomeIcon) {
+      // Usar Font Awesome
+      if (type === "text") {
+        fontAwesomeIcon.classList.remove("fa-eye");
+        fontAwesomeIcon.classList.add("fa-eye-slash");
+      } else {
+        fontAwesomeIcon.classList.remove("fa-eye-slash");
+        fontAwesomeIcon.classList.add("fa-eye");
+      }
+    } else if (emojiIcon) {
+      // Usar emoji fallback
+      emojiIcon.textContent = type === "text" ? "🙈" : "👁";
+    }
+  });
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
