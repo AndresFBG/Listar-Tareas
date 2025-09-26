@@ -776,6 +776,7 @@ function initBoard() {
 /**
  * Initialize the "Register" view.
  * Validates and handles user registration with multiple fields.
+ * Includes password toggle functionality.
  *
  * @function initRegister
  * @returns {void}
@@ -790,7 +791,59 @@ function initRegister() {
   const confirmPassInput = document.getElementById("confirmPassword");
   const msg = document.getElementById("registerMsg");
 
+  // Elementos para toggle de contraseñas
+  const toggleRegisterPassword = document.getElementById("toggleRegisterPassword");
+  const toggleConfirmRegisterPassword = document.getElementById("toggleConfirmRegisterPassword");
+
   if (!form) return;
+
+  // Toggle para mostrar/ocultar contraseña principal
+  toggleRegisterPassword?.addEventListener("click", () => {
+    const type = passInput.type === "password" ? "text" : "password";
+    passInput.type = type;
+    
+    // Buscar icono Font Awesome o span emoji
+    const fontAwesomeIcon = toggleRegisterPassword.querySelector("i");
+    const emojiIcon = toggleRegisterPassword.querySelector(".eye-icon");
+    
+    if (fontAwesomeIcon) {
+      // Usar Font Awesome
+      if (type === "text") {
+        fontAwesomeIcon.classList.remove("fa-eye");
+        fontAwesomeIcon.classList.add("fa-eye-slash");
+      } else {
+        fontAwesomeIcon.classList.remove("fa-eye-slash");
+        fontAwesomeIcon.classList.add("fa-eye");
+      }
+    } else if (emojiIcon) {
+      // Usar emoji fallback
+      emojiIcon.textContent = type === "text" ? "🙈" : "👁";
+    }
+  });
+
+  // Toggle para mostrar/ocultar confirmación de contraseña
+  toggleConfirmRegisterPassword?.addEventListener("click", () => {
+    const type = confirmPassInput.type === "password" ? "text" : "password";
+    confirmPassInput.type = type;
+    
+    // Buscar icono Font Awesome o span emoji
+    const fontAwesomeIcon = toggleConfirmRegisterPassword.querySelector("i");
+    const emojiIcon = toggleConfirmRegisterPassword.querySelector(".eye-icon");
+    
+    if (fontAwesomeIcon) {
+      // Usar Font Awesome
+      if (type === "text") {
+        fontAwesomeIcon.classList.remove("fa-eye");
+        fontAwesomeIcon.classList.add("fa-eye-slash");
+      } else {
+        fontAwesomeIcon.classList.remove("fa-eye-slash");
+        fontAwesomeIcon.classList.add("fa-eye");
+      }
+    } else if (emojiIcon) {
+      // Usar emoji fallback
+      emojiIcon.textContent = type === "text" ? "🙈" : "👁";
+    }
+  });
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
