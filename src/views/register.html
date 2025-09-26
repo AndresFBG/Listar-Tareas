@@ -4,23 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="home.css">
+    <!-- Font Awesome para los iconos de ojo -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Fallback Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
     <div class="container-register">
         <div class="form-container">
             <h1>¡Es hora de empezar!</h1>
-            <p>Completa los campos y forma parte de nosotros.</p> <br>
+            <p>Completa los campos y forma parte de nosotros.</p>
+            <br>
             
             <!-- Registration form with the corresponding IDs -->
             <form id="registerForm">
                 <input type="text" id="username" placeholder="Nombres" required>
                 <input type="text" id="lastname" placeholder="Apellidos" required>
-                <Label>Fecha de Nacimiento</Label>
-                <input type="date" id="brithdate" placeholder="Fecha de nacimiento"  max="{{today}}" required>
+                
+                <label for="brithdate">Fecha de Nacimiento</label>
+                <input type="date" id="brithdate" placeholder="Fecha de nacimiento" max="2006-12-31" required>
+                
                 <input type="email" id="email" placeholder="Correo electrónico" required>
-                <input type="password" id="password" placeholder="Contraseña" required>
-                <input type="password" id="confirmPassword" placeholder="Confirmar contraseña" required>
+                
+                <!-- Password field with toggle button -->
+                <div class="password-container">
+                    <input type="password" id="password" placeholder="Contraseña" required>
+                    <button type="button" class="toggle-password" id="toggleRegisterPassword">
+                        <span class="eye-icon">👁</span>
+                    </button>
+                </div>
+                
+                <!-- Confirm password field with toggle button -->
+                <div class="password-container">
+                    <input type="password" id="confirmPassword" placeholder="Confirmar contraseña" required>
+                    <button type="button" class="toggle-password" id="toggleConfirmRegisterPassword">
+                        <span class="eye-icon">👁</span>
+                    </button>
+                </div>
                 
                 <button type="submit">¡Unirme ahora!</button>
                 <p id="registerMsg"></p>
@@ -29,7 +50,7 @@
             <p>¿Ya tienes una cuenta? <a href="#/home">Acceder</a></p>
         </div>
     </div>
-
+    
     <!-- Modal to display the successful registration message -->
     <div id="successModal" class="modal" style="display:none;">
         <div class="modal-content">
@@ -38,18 +59,51 @@
             <button id="closeModal" class="btn-close">Cerrar</button>
         </div>
     </div>
-
+    
     <footer class="footer">
-      <nav class="footer-nav">
-        <a href="#/home">Acceder</a>
-        <span>|</span>
-        <a href="#/board">Home</a>
-        <span>|</span>
-        <a href="#/about-us">Nosotros</a>
-      </nav>
-      <p class="footer-copy">
-        &copy; 2025. Sitio web desarrollado por NEXTSTEP Todos los derechos reservados.
-      </p>
+        <nav class="footer-nav">
+            <a href="#/home">Acceder</a>
+            <span>|</span>
+            <a href="#/board">Home</a>
+            <span>|</span>
+            <a href="#/about-us">Nosotros</a>
+        </nav>
+        <p class="footer-copy">
+            &copy; 2025. Sitio web desarrollado por NEXTSTEP Todos los derechos reservados.
+        </p>
     </footer>
+
+    <!-- Script para detectar Font Awesome y configurar fecha máxima -->
+    <script>
+        // Configurar fecha máxima (18 años atrás)
+        window.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            const eighteenYearsAgo = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+            const maxDate = eighteenYearsAgo.toISOString().split('T')[0];
+            document.getElementById('brithdate').setAttribute('max', maxDate);
+            
+            // Verificar si Font Awesome está disponible
+            const testIcon = document.createElement('i');
+            testIcon.className = 'fas fa-eye';
+            testIcon.style.display = 'none';
+            document.body.appendChild(testIcon);
+            
+            setTimeout(() => {
+                const computed = window.getComputedStyle(testIcon, ':before');
+                const fontAwesome = computed.getPropertyValue('font-family').includes('Font Awesome');
+                document.body.removeChild(testIcon);
+                
+                if (fontAwesome) {
+                    // Font Awesome está cargado, usar iconos FA
+                    document.querySelectorAll('.eye-icon').forEach(span => {
+                        span.innerHTML = '<i class="fas fa-eye"></i>';
+                    });
+                } else {
+                    // Font Awesome no está cargado, mantener emojis
+                    console.warn('Font Awesome no pudo cargar, usando iconos de fallback');
+                }
+            }, 100);
+        });
+    </script>
 </body>
 </html>

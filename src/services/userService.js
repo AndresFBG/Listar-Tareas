@@ -32,7 +32,7 @@ import { http } from '../api/http.js';
  * }
  */
 export async function registerUser({ username, lastname, birthdate, email, password, bio }) {
-  return http.post('/api/v1/users', { username, lastname, birthdate, email, password, bio });
+  return http.post('/api/v1/users/register', { username, lastname, birthdate, email, password, bio });
 }
 
 /**
