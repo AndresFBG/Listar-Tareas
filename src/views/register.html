@@ -3,39 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Nueva Contraseña</title>
+    <link rel="stylesheet" href="home.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
-    <div class="container-register">
+    <div class="container-reset-password">
         <div class="form-container">
-            <h1>¡Es hora de empezar!</h1>
-            <p>Completa los campos y forma parte de nosotros.</p> <br>
+            <h1>Nueva contraseña</h1>
+            <p>Ingresa tu nueva contraseña para completar el proceso de recuperación</p>
             
-            <!-- Registration form with the corresponding IDs -->
-            <form id="registerForm">
-                <input type="text" id="username" placeholder="Nombres" required>
-                <input type="text" id="lastname" placeholder="Apellidos" required>
-                <Label>Fecha de Nacimiento</Label>
-                <input type="date" id="brithdate" placeholder="Fecha de nacimiento"  max="{{today}}" required>
-                <input type="email" id="email" placeholder="Correo electrónico" required>
-                <input type="password" id="password" placeholder="Contraseña" required>
-                <input type="password" id="confirmPassword" placeholder="Confirmar contraseña" required>
+            <form id="resetPasswordForm">
+                <!-- Hidden token that will come from the URL -->
+                <input type="hidden" id="resetToken" name="token">
                 
-                <button type="submit">¡Unirme ahora!</button>
-                <p id="registerMsg"></p>
+                <!-- New password field -->
+                <div class="password-container">
+                    <input type="password" id="newPassword" placeholder="Nueva contraseña" required>
+                    <button type="button" class="toggle-password" id="toggleNewPassword">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                
+                <!-- Password confirmation field -->
+                <div class="password-container">
+                    <input type="password" id="confirmPassword" placeholder="Confirmar la contraseña" required>
+                    <button type="button" class="toggle-password" id="toggleConfirmPassword">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                
+                <!-- Message container -->
+                <div id="message" class="message-container"></div>
+                
+                <!-- Button to change password -->
+                <button type="submit" id="submitBtn">Cambiar contraseña</button>
+                
+                <!-- Link to return to login -->
+                <p><a href="#/home">Volver al login</a></p>
             </form>
-            <br>
-            <p>¿Ya tienes una cuenta? <a href="#/home">Acceder</a></p>
         </div>
     </div>
 
-    <!-- Modal to display the successful registration message -->
-    <div id="successModal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <div class="modal-header">Registro Exitoso</div>
-            <p>¡Te has registrado exitosamente!</p>
-            <button id="closeModal" class="btn-close">Cerrar</button>
+    <!-- Success Confirmation Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content success-modal">
+            <div class="modal-header">¡Contraseña Actualizada!</div>
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <p class="success-message">
+                Tu contraseña ha sido actualizada exitosamente. Ya puedes iniciar sesión con tu nueva contraseña.
+            </p>
+            <div class="modal-buttons">
+                <button type="button" class="btn-save" id="goToLoginBtn">Ir al Login</button>
+            </div>
         </div>
     </div>
 
@@ -51,5 +73,7 @@
         &copy; 2025. Sitio web desarrollado por NEXTSTEP Todos los derechos reservados.
       </p>
     </footer>
+
+    <script src="app.js"></script>
 </body>
 </html>

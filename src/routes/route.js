@@ -1012,22 +1012,38 @@ function initResetPassword() {
     modal.classList.remove("show");
   }
 
-  // Toggle para mostrar/ocultar nueva contraseña
+  // Toggle para mostrar/ocultar nueva contraseña - CORREGIDO
   toggleNewPassword?.addEventListener("click", () => {
     const type = newPasswordInput.type === "password" ? "text" : "password";
     newPasswordInput.type = type;
     const icon = toggleNewPassword.querySelector("i");
-    icon.classList.toggle("fa-eye");
-    icon.classList.toggle("fa-eye-slash");
+    
+    if (type === "text") {
+      // Mostrar contraseña - cambiar a ojo tachado
+      icon.classList.remove("fa-eye");
+      icon.classList.add("fa-eye-slash");
+    } else {
+      // Ocultar contraseña - cambiar a ojo normal
+      icon.classList.remove("fa-eye-slash");
+      icon.classList.add("fa-eye");
+    }
   });
 
-  // Toggle para mostrar/ocultar confirmación de contraseña
+  // Toggle para mostrar/ocultar confirmación de contraseña - CORREGIDO
   toggleConfirmPassword?.addEventListener("click", () => {
     const type = confirmPasswordInput.type === "password" ? "text" : "password";
     confirmPasswordInput.type = type;
     const icon = toggleConfirmPassword.querySelector("i");
-    icon.classList.toggle("fa-eye");
-    icon.classList.toggle("fa-eye-slash");
+    
+    if (type === "text") {
+      // Mostrar contraseña - cambiar a ojo tachado
+      icon.classList.remove("fa-eye");
+      icon.classList.add("fa-eye-slash");
+    } else {
+      // Ocultar contraseña - cambiar a ojo normal
+      icon.classList.remove("fa-eye-slash");
+      icon.classList.add("fa-eye");
+    }
   });
 
   // Event listener para el botón del modal de éxito
@@ -1105,7 +1121,7 @@ function initResetPassword() {
       let errorMessage = "Ha ocurrido un error. Por favor, inténtalo de nuevo.";
       
       if (err.message.includes("token")) {
-        errorMessage = "El enlace de recuperación ha expirado o no es válido. Por favor, solicita un nuevo enlace.";
+        errorMessage = "El enlace de recuperación ha expirado o no es válid o. Por favor, solicita un nuevo enlace.";
       } else if (err.message.includes("password")) {
         errorMessage = "Error al actualizar la contraseña. Verifica que cumple con los requisitos.";
       }
