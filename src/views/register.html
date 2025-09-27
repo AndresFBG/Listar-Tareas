@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro</title>
     <link rel="stylesheet" href="home.css">
-    <!-- Font Awesome para los iconos de ojo -->
+    <!-- Font Awesome for the eye icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Fallback Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
@@ -73,16 +73,16 @@
         </p>
     </footer>
 
-    <!-- Script para detectar Font Awesome y configurar fecha máxima -->
+    <!-- Script to detect Font Awesome and set the maximum date -->
     <script>
-        // Configurar fecha máxima (18 años atrás)
+        //Set maximum date (18 years ago)
         window.addEventListener('DOMContentLoaded', function() {
             const today = new Date();
             const eighteenYearsAgo = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
             const maxDate = eighteenYearsAgo.toISOString().split('T')[0];
             document.getElementById('brithdate').setAttribute('max', maxDate);
             
-            // Verificar si Font Awesome está disponible
+            // Check if Font Awesome is available
             const testIcon = document.createElement('i');
             testIcon.className = 'fas fa-eye';
             testIcon.style.display = 'none';
@@ -94,12 +94,12 @@
                 document.body.removeChild(testIcon);
                 
                 if (fontAwesome) {
-                    // Font Awesome está cargado, usar iconos FA
+                    // Font Awesome is loaded, use FA icons
                     document.querySelectorAll('.eye-icon').forEach(span => {
                         span.innerHTML = '<i class="fas fa-eye"></i>';
                     });
                 } else {
-                    // Font Awesome no está cargado, mantener emojis
+                    // Font Awesome is not loaded, keep emojis
                     console.warn('Font Awesome no pudo cargar, usando iconos de fallback');
                 }
             }, 100);

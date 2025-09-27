@@ -43,7 +43,7 @@ const viewURL = (name) => new URL(`../views/${name}.html`, import.meta.url);
  * @throws {Error} If the requested view cannot be fetched successfully.
  * @returns {Promise<void>} Resolves when the view has been loaded and initialized.
  */
-// 2. Actualizar la función loadView para incluir reset-password
+// 2. Update the loadView function to include reset-password
 async function loadView(name) {
   const res = await fetch(viewURL(name));
   if (!res.ok) throw new Error(`Failed to load view: ${name}`);
@@ -55,7 +55,7 @@ async function loadView(name) {
   if (name === "register") initRegister();
   if (name === "forgot") initForgot();
   if (name === "about-us") initAbout();
-  if (name === "reset-password") initResetPassword(); // <- AGREGAR ESTA LÍNEA
+  if (name === "reset-password") initResetPassword(); // <- ADD THIS LINE
 }
 
 /**
@@ -79,14 +79,14 @@ export function initRouter() {
  * @returns {void}
  */
 
-// 3. Actualizar la función handleRoute para incluir reset-password
+// 3. Update the handleRoute function to include reset-password
 function handleRoute() {
   const path =
     (location.hash.startsWith("#/") ? location.hash.slice(2) : "") || "home";
   const known = ["home", "board", "register", "forgot", "about-us", "reset-password"]; // <- AGREGAR reset-password
   let route;
   if (path.startsWith("reset-password")) {
-    // permite rutas tipo reset-password/<token>
+    // allows routes like reset-password/<token>
     route = "reset-password";
   } else {
     route = known.includes(path) ? path : "home";
@@ -94,7 +94,7 @@ function handleRoute() {
 
 
   // Route protection: allow "board" and "about-us" only if user is logged in
-  // Protección de ruta: solo permitir acceso a "board", "about-us" y "reset-password" si hay sesión
+  // Route protection: only allow access to "board", "about-us", and "reset-password" if there is a session
 
   if (route === "board" || route === "about-us") {
     const user = localStorage.getItem("userData");
@@ -140,22 +140,22 @@ function initHome() {
   const passInput = document.getElementById("password");
   const msg = document.getElementById("loginMsg");
   
-  // Elemento para toggle de contraseña
+  // Element for password toggle
   const toggleLoginPassword = document.getElementById("toggleLoginPassword");
 
   if (!form) return;
 
-  // Toggle para mostrar/ocultar contraseña en login
+  // Toggle to show/hide password on login
   toggleLoginPassword?.addEventListener("click", () => {
     const type = passInput.type === "password" ? "text" : "password";
     passInput.type = type;
     
-    // Buscar icono Font Awesome o span emoji
+    // Search Font Awesome icon or emoji span
     const fontAwesomeIcon = toggleLoginPassword.querySelector("i");
     const emojiIcon = toggleLoginPassword.querySelector(".eye-icon");
     
     if (fontAwesomeIcon) {
-      // Usar Font Awesome
+      // Use Font Awesome
       if (type === "text") {
         fontAwesomeIcon.classList.remove("fa-eye");
         fontAwesomeIcon.classList.add("fa-eye-slash");
@@ -164,7 +164,7 @@ function initHome() {
         fontAwesomeIcon.classList.add("fa-eye");
       }
     } else if (emojiIcon) {
-      // Usar emoji fallback
+      // Use emoji fallback
       emojiIcon.textContent = type === "text" ? "🙈" : "👁";
     }
   });
@@ -780,23 +780,23 @@ function initRegister() {
   const confirmPassInput = document.getElementById("confirmPassword");
   const msg = document.getElementById("registerMsg");
 
-  // Elementos para toggle de contraseñas
+  // Elements for password toggle
   const toggleRegisterPassword = document.getElementById("toggleRegisterPassword");
   const toggleConfirmRegisterPassword = document.getElementById("toggleConfirmRegisterPassword");
 
   if (!form) return;
 
-  // Toggle para mostrar/ocultar contraseña principal
+  //Toggle to show/hide master password
   toggleRegisterPassword?.addEventListener("click", () => {
     const type = passInput.type === "password" ? "text" : "password";
     passInput.type = type;
     
-    // Buscar icono Font Awesome o span emoji
+    // Search Font Awesome icon or span emoji
     const fontAwesomeIcon = toggleRegisterPassword.querySelector("i");
     const emojiIcon = toggleRegisterPassword.querySelector(".eye-icon");
     
     if (fontAwesomeIcon) {
-      // Usar Font Awesome
+      // Use Font Awesome
       if (type === "text") {
         fontAwesomeIcon.classList.remove("fa-eye");
         fontAwesomeIcon.classList.add("fa-eye-slash");
@@ -805,22 +805,22 @@ function initRegister() {
         fontAwesomeIcon.classList.add("fa-eye");
       }
     } else if (emojiIcon) {
-      // Usar emoji fallback
+      //Use emoji fallback
       emojiIcon.textContent = type === "text" ? "🙈" : "👁";
     }
   });
 
-  // Toggle para mostrar/ocultar confirmación de contraseña
+  // Toggle to show/hide password confirmation
   toggleConfirmRegisterPassword?.addEventListener("click", () => {
     const type = confirmPassInput.type === "password" ? "text" : "password";
     confirmPassInput.type = type;
     
-    // Buscar icono Font Awesome o span emoji
+    // Search Font Awesome icon or emoji span
     const fontAwesomeIcon = toggleConfirmRegisterPassword.querySelector("i");
     const emojiIcon = toggleConfirmRegisterPassword.querySelector(".eye-icon");
     
     if (fontAwesomeIcon) {
-      // Usar Font Awesome
+      // Use Font Awesome
       if (type === "text") {
         fontAwesomeIcon.classList.remove("fa-eye");
         fontAwesomeIcon.classList.add("fa-eye-slash");
@@ -829,7 +829,7 @@ function initRegister() {
         fontAwesomeIcon.classList.add("fa-eye");
       }
     } else if (emojiIcon) {
-      // Usar emoji fallback
+      // Use emoji fallback
       emojiIcon.textContent = type === "text" ? "🙈" : "👁";
     }
   });
@@ -1040,17 +1040,17 @@ function initResetPassword() {
   const msg = document.getElementById("message");
   const submitBtn = document.getElementById("submitBtn");
   
-  // Elementos del modal de éxito
+  // Success modal elements
   const successModal = document.getElementById("successModal");
   const goToLoginBtn = document.getElementById("goToLoginBtn");
   
-  // Elementos para mostrar/ocultar contraseñas
+  // Elements to show/hide passwords
   const toggleNewPassword = document.getElementById("toggleNewPassword");
   const toggleConfirmPassword = document.getElementById("toggleConfirmPassword");
 
   if (!form) return;
 
-  // Extraer token de la URL
+  // Extract token from the URL
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get('token') || extractTokenFromHash();
   
@@ -1062,58 +1062,58 @@ function initResetPassword() {
     return;
   }
 
-  // Función para extraer token del hash si viene en formato #/reset-password?token=xxx
+  //Function to extract token from the hash if it comes in the format #/reset-password?token=xxx
   function extractTokenFromHash() {
     const hash = window.location.hash;
     const tokenMatch = hash.match(/[?&]token=([^&]+)/);
     return tokenMatch ? tokenMatch[1] : null;
   }
 
-  // Función para mostrar modal
+  // Function to display modal
   function showModal(modal) {
     modal.classList.add("show");
   }
 
-  // Función para ocultar modal
+  // Function to hide modal
   function hideModal(modal) {
     modal.classList.remove("show");
   }
 
-  // Toggle para mostrar/ocultar nueva contraseña - CORREGIDO
+  // Toggle to show/hide new password - FIXED
   toggleNewPassword?.addEventListener("click", () => {
     const type = newPasswordInput.type === "password" ? "text" : "password";
     newPasswordInput.type = type;
     const icon = toggleNewPassword.querySelector("i");
     
     if (type === "text") {
-      // Mostrar contraseña - cambiar a ojo tachado
+      // Show password - switch to crossed-out eye
       icon.classList.remove("fa-eye");
       icon.classList.add("fa-eye-slash");
     } else {
-      // Ocultar contraseña - cambiar a ojo normal
+      // Hide password - switch to normal eye
       icon.classList.remove("fa-eye-slash");
       icon.classList.add("fa-eye");
     }
   });
 
-  // Toggle para mostrar/ocultar confirmación de contraseña - CORREGIDO
+  // Toggle to show/hide password confirmation - FIXED
   toggleConfirmPassword?.addEventListener("click", () => {
     const type = confirmPasswordInput.type === "password" ? "text" : "password";
     confirmPasswordInput.type = type;
     const icon = toggleConfirmPassword.querySelector("i");
     
     if (type === "text") {
-      // Mostrar contraseña - cambiar a ojo tachado
+      // Show password - switch to crossed-out eye
       icon.classList.remove("fa-eye");
       icon.classList.add("fa-eye-slash");
     } else {
-      // Ocultar contraseña - cambiar a ojo normal
+      // Hide password - switch to normal eye
       icon.classList.remove("fa-eye-slash");
       icon.classList.add("fa-eye");
     }
   });
 
-  // Event listener para el botón del modal de éxito
+  //Event listener for the success modal button
   goToLoginBtn?.addEventListener("click", () => {
     hideModal(successModal);
     setTimeout(() => {
@@ -1121,7 +1121,7 @@ function initResetPassword() {
     }, 300);
   });
 
-  // Event listener para cerrar modal al hacer clic fuera
+  // Event listener to close modal when clicking outside
   window.addEventListener("click", (e) => {
     if (e.target === successModal) {
       hideModal(successModal);
@@ -1131,7 +1131,7 @@ function initResetPassword() {
     }
   });
 
-  // Event listener para el formulario
+  // Event listener for the form
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     msg.textContent = "";
@@ -1140,13 +1140,13 @@ function initResetPassword() {
     const confirmPassword = confirmPasswordInput?.value.trim();
     const resetToken = tokenInput?.value.trim();
 
-    // Validaciones
+    // Validations
     if (!newPassword || !confirmPassword) {
       msg.innerHTML = '<div class="message-error">Por favor completa todos los campos.</div>';
       return;
     }
 
-    // Validar formato de contraseña
+    // Validate password format
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
     if (!passwordRegex.test(newPassword)) {
       msg.innerHTML = '<div class="message-error">La contraseña debe tener mínimo 8 caracteres, incluir mayúsculas, minúsculas, números y símbolos.</div>';
@@ -1154,7 +1154,7 @@ function initResetPassword() {
       return;
     }
 
-    // Validar que las contraseñas coincidan
+    // Validate that the passwords match
     if (newPassword !== confirmPassword) {
       msg.innerHTML = '<div class="message-error">Las contraseñas no coinciden.</div>';
       confirmPasswordInput.focus();
@@ -1166,25 +1166,25 @@ function initResetPassword() {
       return;
     }
 
-    // Deshabilitar botón y cambiar texto
+    // Disable button and change text
     submitBtn.disabled = true;
     submitBtn.textContent = "Cambiando contraseña...";
 
     try {
-      // Llamar al servicio para resetear la contraseña
+      // Call the service to reset the password
       await resetPassword({ token: resetToken, newPassword });
 
-      // Mostrar modal de éxito
+      // Show success modal
       showModal(successModal);
 
-      // Limpiar el formulario
+      // Clear the form
       form.reset();
       msg.textContent = "";
 
     } catch (err) {
       console.error("Error al resetear contraseña:", err);
       
-      // Mostrar mensaje de error específico
+      // Show specific error message
       let errorMessage = "Ha ocurrido un error. Por favor, inténtalo de nuevo.";
       
       if (err.message.includes("token")) {
@@ -1196,7 +1196,7 @@ function initResetPassword() {
       msg.innerHTML = `<div class="message-error">${errorMessage}</div>`;
       
     } finally {
-      // Restaurar botón
+      // Restore button
       submitBtn.disabled = false;
       submitBtn.textContent = "Cambiar contraseña";
     }
